@@ -1,11 +1,22 @@
+use rayon::prelude::*;
 use serde::Deserialize;
 use std::collections::HashSet;
 use std::fs;
 use std::io;
 use std::path::Path;
 
-const IMAGE_DIR: &str = "static/images";
+use crate::images::{self, Image};
+
 const FALLBACK_RATIO: f32 = 1.25;
+
+const RESERVED_IDS: [&str; 6] = [
+    "main",
+    "lightbox",
+    "lightbox-img",
+    "lightbox-title",
+    "lightbox-details",
+    "lightbox-count",
+];
 
 #[derive(Debug, Deserialize)]
 pub struct Painting {
@@ -22,7 +33,7 @@ pub struct Painting {
     #[serde(default, alias = "featured")]
     pub is_featured: bool,
     #[serde(skip)]
-    pub dims: Option<(u32, u32)>,
+    pub image: Image,
     #[serde(skip)]
     pub slug: String,
 }
@@ -33,7 +44,7 @@ impl Painting {
     }
 
     pub fn ratio(&self) -> f32 {
-        match self.dims {
+        match self.image.dims {
             Some((w, h)) if h > 0 => w as f32 / h as f32,
             _ => FALLBACK_RATIO,
         }
@@ -60,7 +71,7 @@ pub struct SiteContent {
     #[serde(default)]
     pub portrait_alt: Option<String>,
     #[serde(skip)]
-    pub portrait_dims: Option<(u32, u32)>,
+    pub portrait_image: Option<Image>,
     pub paintings: Vec<Painting>,
     #[serde(default)]
     pub goatcounter_code: Option<String>,
@@ -78,43 +89,75 @@ impl SiteContent {
         let mut content: Self = toml::from_str(&content_str)
             .map_err(|e| io::Error::other(format!("Failed to parse TOML: {e}")))?;
 
-        content.portrait_dims = content.portrait.as_deref().and_then(measure);
-        content.prepare_paintings();
+        content.prepare()?;
         Ok(content)
     }
 
-    fn prepare_paintings(&mut self) {
-        let mut seen = HashSet::new();
+    fn prepare(&mut self) -> io::Result<()> {
+        if let Some(file) = &self.portrait {
+            self.portrait_image = Some(images::build(file)?);
+        }
+
+        self.paintings
+            .par_iter_mut()
+            .try_for_each(|p| -> io::Result<()> {
+                p.image = images::build(&p.file)?;
+                Ok(())
+            })?;
+
+        let mut seen: HashSet<String> = RESERVED_IDS.iter().map(|s| s.to_string()).collect();
 
         for (i, p) in self.paintings.iter_mut().enumerate() {
-            p.dims = measure(&p.file);
+            let mut base = slugify(&p.title);
+            if base.is_empty() {
+                base = format!("painting-{}", i + 1);
+            }
 
-            let mut slug = slugify(&p.title);
-            if slug.is_empty() || !seen.insert(slug.clone()) {
-                slug = format!("painting-{}", i + 1);
-                seen.insert(slug.clone());
+            let mut slug = base.clone();
+            let mut n = 2;
+            while !seen.insert(slug.clone()) {
+                slug = format!("{base}-{n}");
+                n += 1;
             }
             p.slug = slug;
         }
-    }
-}
 
-fn measure(file: &str) -> Option<(u32, u32)> {
-    let path = Path::new(IMAGE_DIR).join(file);
-    match imagesize::size(&path) {
-        Ok(s) => Some((s.width as u32, s.height as u32)),
-        Err(e) => {
-            eprintln!("warning: can't read size of '{}': {e}", path.display());
-            None
+        Ok(())
+    }
+
+    pub fn publish_images(&self, out_dir: &Path) -> io::Result<()> {
+        if let Some(img) = &self.portrait_image {
+            images::publish(img, out_dir)?;
         }
+        for p in &self.paintings {
+            images::publish(&p.image, out_dir)?;
+        }
+        Ok(())
     }
 }
 
 fn slugify(s: &str) -> String {
     let mut out = String::new();
-    for c in s.chars() {
-        if c.is_ascii_alphanumeric() {
-            out.push(c.to_ascii_lowercase());
+    for c in s.chars().flat_map(char::to_lowercase) {
+        let folded = match c {
+            'à' | 'á' | 'â' | 'ã' | 'ä' | 'å' => "a",
+            'ç' => "c",
+            'è' | 'é' | 'ê' | 'ë' => "e",
+            'ì' | 'í' | 'î' | 'ï' => "i",
+            'ñ' => "n",
+            'ò' | 'ó' | 'ô' | 'õ' | 'ö' | 'ø' => "o",
+            'ù' | 'ú' | 'û' | 'ü' => "u",
+            'ý' | 'ÿ' => "y",
+            'ß' => "ss",
+            'æ' => "ae",
+            'œ' => "oe",
+            _ => "",
+        };
+
+        if !folded.is_empty() {
+            out.push_str(folded);
+        } else if c.is_ascii_alphanumeric() {
+            out.push(c);
         } else if !out.is_empty() && !out.ends_with('-') {
             out.push('-');
         }

@@ -1,4 +1,5 @@
 mod content;
+mod images;
 mod layout;
 mod pages;
 
@@ -26,6 +27,8 @@ fn main() -> io::Result<()> {
     if static_dir.exists() {
         copy_dir(static_dir, out)?;
     }
+
+    content.publish_images(&out.join("images"))?;
 
     let css_source = fs::read_to_string(STYLES)
         .map_err(|e| io::Error::other(format!("Failed to read CSS file at '{STYLES}': {e}")))?;

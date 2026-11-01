@@ -7,6 +7,15 @@ const ICON_PREV: &str = "M15 5l-7 7 7 7";
 const ICON_NEXT: &str = "M9 5l7 7-7 7";
 const ICON_CLOSE: &str = "M6 6l12 12M18 6L6 18";
 
+const EAGER_COUNT: usize = 3;
+const HOME_COUNT: usize = 8;
+
+#[derive(Clone, Copy)]
+enum Place {
+    Grid,
+    Carousel,
+}
+
 fn icon(path: &str) -> Markup {
     html! {
         svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
@@ -17,21 +26,36 @@ fn icon(path: &str) -> Markup {
     }
 }
 
-fn painting_item(p: &Painting, root: &str) -> Markup {
-    let src = format!("{root}images/{}", p.file);
+fn sizes_for(place: Place, ratio: f32) -> String {
+    match place {
+        Place::Grid => format!("min(100vw, calc({ratio:.3} * clamp(9.5rem, 21vw, 17rem)))"),
+        Place::Carousel => {
+            format!("calc({ratio:.3} * clamp(13rem, min(42vh, 40vw), 27rem))")
+        }
+    }
+}
+
+fn painting_item(p: &Painting, root: &str, place: Place, index: usize) -> Markup {
+    let img = &p.image;
     let details = p.details();
+    let dims = img.dims;
+    let eager = index < EAGER_COUNT;
 
     html! {
         li id=(p.slug) style=(format!("--r:{:.4}", p.ratio())) {
             button.thumb type="button"
-                data-full=(src) data-title=(p.title) data-alt=(p.alt_text()) data-details=(details)
+                data-full=(img.full_url(root)) data-title=(p.title)
+                data-alt=(p.alt_text()) data-details=(details)
             {
-                @if let Some((w, h)) = p.dims {
-                    img src=(src) alt=(p.alt_text()) width=(w) height=(h)
-                        loading="lazy" decoding="async";
-                } @else {
-                    img src=(src) alt=(p.alt_text()) loading="lazy" decoding="async";
-                }
+                img src=(img.fallback_url(root))
+                    srcset=(img.srcset(root))
+                    sizes=(sizes_for(place, p.ratio()))
+                    alt=(p.alt_text())
+                    width=[dims.map(|d| d.0)]
+                    height=[dims.map(|d| d.1)]
+                    loading=(if eager { "eager" } else { "lazy" })
+                    fetchpriority=[(index == 0).then_some("high")]
+                    decoding="async";
             }
             p.caption {
                 em { (&p.title) }
@@ -40,8 +64,6 @@ fn painting_item(p: &Painting, root: &str) -> Markup {
         }
     }
 }
-
-const HOME_COUNT: usize = 8;
 
 pub fn home(content: &SiteContent) -> Markup {
     let root = root_of("");
@@ -61,7 +83,9 @@ pub fn home(content: &SiteContent) -> Markup {
                 p { (content.tagline) }
             }
             ul.gallery.carousel aria-label="Selected paintings" {
-                @for p in featured { (painting_item(p, &root)) }
+                @for (i, p) in featured.iter().enumerate() {
+                    (painting_item(p, &root, Place::Carousel, i))
+                }
             }
             div.more {
                 a href=(url(&root, "paintings/")) { "See all " (content.paintings.len()) " paintings" }
@@ -87,7 +111,9 @@ pub fn gallery(content: &SiteContent) -> Markup {
         html! {
             h1 { "Paintings" }
             ul.gallery {
-                @for p in &content.paintings { (painting_item(p, &root)) }
+                @for (i, p) in content.paintings.iter().enumerate() {
+                    (painting_item(p, &root, Place::Grid, i))
+                }
             }
             (lightbox())
         },
@@ -108,14 +134,16 @@ pub fn about(content: &SiteContent) -> Markup {
         html! {
             h1 { "About" }
             div.about {
-                @if let Some(file) = &content.portrait {
-                    @let src = format!("{root}images/{file}");
+                @if let Some(img) = &content.portrait_image {
                     figure.portrait {
-                        @if let Some((w, h)) = content.portrait_dims {
-                            img src=(src) alt=(alt) width=(w) height=(h) decoding="async";
-                        } @else {
-                            img src=(src) alt=(alt) decoding="async";
-                        }
+                        img src=(img.fallback_url(&root))
+                            srcset=(img.srcset(&root))
+                            sizes="(min-width: 60rem) 60vw, 100vw"
+                            alt=(alt)
+                            width=[img.dims.map(|d| d.0)]
+                            height=[img.dims.map(|d| d.1)]
+                            fetchpriority="high"
+                            decoding="async";
                     }
                 }
                 div.prose.bio {
