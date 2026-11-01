@@ -4,9 +4,14 @@ use std::path::Component;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
+use image::RgbImage;
 use image::imageops::FilterType;
 use image::metadata::Orientation;
 use image::{DynamicImage, ImageDecoder, ImageReader};
+use moxcms::CmsError;
+use moxcms::ColorProfile;
+use moxcms::Layout;
+use moxcms::TransformOptions;
 
 pub const SOURCE_DIR: &str = "images";
 const CACHE_ROOT: &str = ".cache/images";
@@ -53,12 +58,24 @@ impl Image {
     }
 }
 
+fn to_srgb(rgb: &RgbImage, icc: &[u8]) -> Result<RgbImage, CmsError> {
+    let src = ColorProfile::new_from_slice(icc)?;
+    let dst = ColorProfile::new_srgb();
+    let transform =
+        src.create_transform_8bit(Layout::Rgb, &dst, Layout::Rgb, TransformOptions::default())?;
+
+    let (w, h) = rgb.dimensions();
+    let mut out = vec![0u8; rgb.as_raw().len()];
+    transform.transform(rgb.as_raw(), &mut out)?;
+    Ok(RgbImage::from_raw(w, h, out).expect("buffer length unchanged"))
+}
+
 pub fn variant_name(stem: &str, width: u32) -> String {
     format!("{stem}-{width}.webp")
 }
 
 fn cache_dir() -> PathBuf {
-    Path::new(CACHE_ROOT).join(format!("q{}", QUALITY as u32))
+    Path::new(CACHE_ROOT).join(format!("v2-q{}", QUALITY as u32))
 }
 
 fn cache_path(stem: &str, width: u32) -> PathBuf {
@@ -88,6 +105,7 @@ fn build_inner(file: &Path) -> io::Result<Image> {
         .into_decoder()
         .map_err(io_err)?;
     let orientation = decoder.orientation().map_err(io_err)?;
+    let icc = decoder.icc_profile().map_err(io_err)?;
     let (mut ow, mut oh) = decoder.dimensions();
     if matches!(
         orientation,
@@ -117,6 +135,15 @@ fn build_inner(file: &Path) -> io::Result<Image> {
         let mut img = DynamicImage::from_decoder(decoder).map_err(io_err)?;
         img.apply_orientation(orientation);
 
+        let mut rgb = img.into_rgb8();
+        if let Some(icc) = &icc {
+            match to_srgb(&rgb, icc) {
+                Ok(converted) => rgb = converted,
+                Err(e) => eprintln!("warning: image '{}': ICC conversion skipped: {e:?}", file.display()),
+            }
+        }
+        let img = DynamicImage::ImageRgb8(rgb);
+
         for w in stale {
             let h = (w as f64 * oh as f64 / ow as f64).round().max(1.0) as u32;
             let resized = if w == ow {
@@ -124,9 +151,7 @@ fn build_inner(file: &Path) -> io::Result<Image> {
             } else {
                 img.resize_exact(w, h, FilterType::Lanczos3)
             };
-            // The webp crate only accepts RGB8 / RGBA8.
-            let rgb = DynamicImage::ImageRgb8(resized.to_rgb8());
-            let bytes = webp::Encoder::from_image(&rgb)
+            let bytes = webp::Encoder::from_image(&resized)
                 .map_err(io_err)?
                 .encode(QUALITY);
             fs::write(cache_path(&stem, w), &*bytes)?;
@@ -142,15 +167,22 @@ fn build_inner(file: &Path) -> io::Result<Image> {
 }
 
 fn stem_of(file: &Path) -> io::Result<String> {
-    if file.components().any(|c| !matches!(c, Component::Normal(_))) {
-        return Err(io_err("path must be relative to images/ with no '..' or '.'"));
+    if file
+        .components()
+        .any(|c| !matches!(c, Component::Normal(_)))
+    {
+        return Err(io_err(
+            "path must be relative to images/ with no '..' or '.'",
+        ));
     }
     let stem = file
         .file_stem()
         .and_then(|s| s.to_str())
         .ok_or_else(|| io_err("file name is not valid UTF-8"))?;
     if stem.is_empty()
-        || !stem.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_'))
+        || !stem
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_'))
     {
         return Err(io_err("file stem may only use A-Z, a-z, 0-9, '-' and '_'"));
     }
