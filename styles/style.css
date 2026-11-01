@@ -41,7 +41,7 @@
   --gutter: clamp(1.25rem, 4vw, 3.5rem);
   --radius: 1.5rem;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
-  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color-scheme: light dark;
 }
 
@@ -93,8 +93,9 @@ html::before {
   content: "";
   position: fixed;
   inset: -20%;
-  z-index: -2;
+  z-index: -4;
   pointer-events: none;
+  will-change: transform;
   background:
     radial-gradient(40% 36% at 14% 20%, var(--blob-1), transparent 70%),
     radial-gradient(34% 40% at 86% 14%, var(--blob-2), transparent 70%),
@@ -103,30 +104,56 @@ html::before {
   animation: drift 50s ease-in-out infinite alternate;
 }
 
-html::after {
+html::after,
+body::before,
+body::after {
   content: "";
   position: fixed;
   left: 0;
-  right: 0;
-  bottom: 0;
-  height: 220px;
-  z-index: -1;
+  width: calc(100% + var(--tile));
+  height: 160px;
   pointer-events: none;
   background-repeat: repeat-x;
-  background-image: var(--wave-3), var(--wave-2), var(--wave-1);
-  background-size: 1000px 160px, 1300px 160px, 1800px 160px;
-  background-position: 0 60px, 0 30px, 0 0;
+  background-size: var(--tile) 160px;
+  will-change: transform, translate;
+}
+
+html::after {
+  --tile: 1800px;
+  bottom: 60px;
+  z-index: -3;
+  background-image: var(--wave-1);
   animation:
-    wave-flow 100s linear infinite,
+    wave-flow-1 100s linear infinite,
     wave-sway 8s ease-in-out infinite alternate;
 }
 
-@keyframes wave-flow {
-  to { background-position: -3000px 60px, -2600px 30px, -1800px 0; }
+body::before {
+  --tile: 1300px;
+  bottom: 30px;
+  z-index: -2;
+  background-image: var(--wave-2);
+  animation:
+    wave-flow-2 50s linear infinite,
+    wave-sway 8s ease-in-out infinite alternate;
 }
 
+body::after {
+  --tile: 1000px;
+  bottom: 0;
+  z-index: -1;
+  background-image: var(--wave-3);
+  animation:
+    wave-flow-3 33.333s linear infinite,
+    wave-sway 8s ease-in-out infinite alternate;
+}
+
+@keyframes wave-flow-1 { to { transform: translate3d(-1800px, 0, 0); } }
+@keyframes wave-flow-2 { to { transform: translate3d(-1300px, 0, 0); } }
+@keyframes wave-flow-3 { to { transform: translate3d(-1000px, 0, 0); } }
+
 @keyframes wave-sway {
-  to { transform: translate3d(0, 10px, 0); }
+  to { translate: 0 10px; }
 }
 
 @keyframes drift {
@@ -148,6 +175,12 @@ body {
 }
 
 body:has(#lightbox[open]) { overflow: hidden; }
+html:has(#lightbox[open])::before,
+html:has(#lightbox[open])::after,
+body:has(#lightbox[open])::before,
+body:has(#lightbox[open])::after {
+  animation-play-state: paused;
+}
 
 ::selection { background: var(--accent); color: var(--bg); }
 
@@ -283,6 +316,12 @@ a:hover { color: var(--text); }
   .site-header nav a { padding: 0.4rem 0.8rem; }
 }
 
+.artist-name {
+  font-family: "Fleur De Leah", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
+
 @property --n1 {
   syntax: "<color>";
   inherits: false;
@@ -316,7 +355,7 @@ a:hover { color: var(--text); }
     var(--n3, #169a86) 66%,
     var(--n4, #b5456f) 100%
   );
-  animation: seasons 240s ease-in-out infinite;
+  animation: seasons 240s steps(30) infinite;
 }
 
 @keyframes seasons {
@@ -554,7 +593,6 @@ main:has(.about) { max-width: 120rem; }
   scroll-padding-inline: var(--gutter);
   scrollbar-width: thin;
   scrollbar-color: var(--edge) transparent;
-  /* Run to the edge of the page, with room above and below for the hover lift and shadow. */
   margin: -1.5rem calc(var(--gutter) * -1) 0;
   padding: 1.5rem var(--gutter) 2rem;
 }
@@ -805,8 +843,12 @@ main:has(.about) { max-width: 120rem; }
   }
 }
 
-.artist-name {
-  font-family: "Fleur De Leah", cursive;
-  font-weight: 400;
-  font-style: normal;
+@media (forced-colors: active) {
+  h1,
+  .intro h1 {
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: CanvasText;
+    animation: none;
+  }
 }
