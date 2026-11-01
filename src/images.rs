@@ -1,5 +1,6 @@
 use std::fs;
 use std::io;
+use std::path::Component;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
 
@@ -72,17 +73,13 @@ fn modified(path: &Path) -> io::Result<SystemTime> {
     fs::metadata(path)?.modified()
 }
 
-pub fn build(file: &str) -> io::Result<Image> {
-    build_inner(file).map_err(|e| io::Error::other(format!("image '{file}': {e}")))
+pub fn build(file: &Path) -> io::Result<Image> {
+    build_inner(file).map_err(|e| io::Error::other(format!("image '{}': {e}", file.display())))
 }
 
-fn build_inner(file: &str) -> io::Result<Image> {
+fn build_inner(file: &Path) -> io::Result<Image> {
+    let stem = stem_of(file)?;
     let src = Path::new(SOURCE_DIR).join(file);
-    let stem = Path::new(file)
-        .file_stem()
-        .and_then(|s| s.to_str())
-        .unwrap_or(file)
-        .to_string();
     let src_time = modified(&src)?;
     fs::create_dir_all(cache_dir())?;
 
@@ -142,6 +139,22 @@ fn build_inner(file: &str) -> io::Result<Image> {
         .map(|s| (s.width as u32, s.height as u32));
 
     Ok(Image { stem, widths, dims })
+}
+
+fn stem_of(file: &Path) -> io::Result<String> {
+    if file.components().any(|c| !matches!(c, Component::Normal(_))) {
+        return Err(io_err("path must be relative to images/ with no '..' or '.'"));
+    }
+    let stem = file
+        .file_stem()
+        .and_then(|s| s.to_str())
+        .ok_or_else(|| io_err("file name is not valid UTF-8"))?;
+    if stem.is_empty()
+        || !stem.chars().all(|c| c.is_ascii_alphanumeric() || matches!(c, '-' | '_'))
+    {
+        return Err(io_err("file stem may only use A-Z, a-z, 0-9, '-' and '_'"));
+    }
+    Ok(stem.to_owned())
 }
 
 pub fn publish(img: &Image, out_dir: &Path) -> io::Result<()> {

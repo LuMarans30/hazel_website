@@ -4,6 +4,7 @@ use std::collections::HashSet;
 use std::fs;
 use std::io;
 use std::path::Path;
+use std::path::PathBuf;
 
 use crate::images::{self, Image};
 
@@ -20,7 +21,7 @@ const RESERVED_IDS: [&str; 6] = [
 
 #[derive(Debug, Deserialize)]
 pub struct Painting {
-    pub file: String,
+    pub file: PathBuf,
     pub title: String,
     #[serde(default)]
     pub year: Option<u16>,
@@ -67,7 +68,7 @@ pub struct SiteContent {
     pub bio: Vec<String>,
     pub email: String,
     #[serde(default)]
-    pub portrait: Option<String>,
+    pub portrait: Option<PathBuf>,
     #[serde(default)]
     pub portrait_alt: Option<String>,
     #[serde(skip)]
