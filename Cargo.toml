@@ -1,0 +1,11 @@
+[package]
+name = "hazel_website"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+imagesize = "0.13"
+lightningcss = "1.0.0-alpha.71"
+maud = "0.27.0"
+serde = { version = "1.0.229", features = ["derive"] }
+toml = "1.1.8"

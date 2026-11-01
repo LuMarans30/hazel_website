@@ -1,0 +1,828 @@
+@import url('https://fonts.googleapis.com/css2?family=Fleur+De+Leah&display=swap');
+
+:root {
+  --bg: #f4f9f2;
+  --text: #12241a;
+  --muted: #54695c;
+  --accent: #1f6b45;
+
+  --blob-1: rgb(168 222 180 / 0.75); /* sage */
+  --blob-2: rgb(150 224 205 / 0.6);  /* mint */
+  --blob-3: rgb(228 238 160 / 0.55); /* spring light */
+  --blob-4: rgb(196 232 214 / 0.65); /* pale fern */
+
+  --panel: rgb(255 255 255 / 0.55);
+  --panel-solid: rgb(255 255 255 / 0.72);
+  --line: rgb(255 255 255 / 0.8);
+  --ring: 0 0 0 1px rgb(18 60 38 / 0.06);
+  --shadow: 0 1px 2px rgb(18 60 38 / 0.06), 0 12px 32px -10px rgb(18 60 38 / 0.22);
+  --shadow-lift: 0 2px 4px rgb(18 60 38 / 0.08), 0 28px 52px -14px rgb(18 60 38 / 0.34);
+  --pill: rgb(31 107 69 / 0.1);
+
+  --btn-bg: #173d2a;
+  --btn-fg: #ffffff;
+
+  --placeholder: rgb(200 230 212 / 0.55);
+  --edge: rgb(18 60 38 / 0.2);
+  --h1-a: #0f2b1d;
+  --h1-b: #1f8057;
+
+  --wave-1: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1800' height='160' viewBox='0 0 1800 160'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23a6e3b8' stop-opacity='0.5'/%3E%3Cstop offset='1' stop-color='%237cd1a0' stop-opacity='0.35'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,60 C300,26 600,26 900,60 S1500,94 1800,60 V160 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E");
+  --wave-2: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1300' height='160' viewBox='0 0 1300 160'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%236fcf97' stop-opacity='0.5'/%3E%3Cstop offset='1' stop-color='%233fae7a' stop-opacity='0.4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,76 C217,38 433,38 650,76 S1083,114 1300,76 V160 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E");
+  --wave-3: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='160' viewBox='0 0 1000 160'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%234fbf86' stop-opacity='0.55'/%3E%3Cstop offset='1' stop-color='%232f9468' stop-opacity='0.55'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,92 C167,62 333,62 500,92 S833,122 1000,92 V160 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E");
+
+  --measure: 38rem;
+  --gutter: clamp(1.25rem, 4vw, 3.5rem);
+  --radius: 1.5rem;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0a130f;
+    --text: #e8f2ec;
+    --muted: #98b2a3;
+    --accent: #7fdc9f;
+
+    --blob-1: rgb(34 110 72 / 0.5);
+    --blob-2: rgb(20 96 88 / 0.42);
+    --blob-3: rgb(110 130 40 / 0.2);
+    --blob-4: rgb(40 90 70 / 0.38);
+
+    --panel: rgb(255 255 255 / 0.055);
+    --panel-solid: rgb(255 255 255 / 0.09);
+    --line: rgb(255 255 255 / 0.1);
+    --ring: 0 0 0 1px rgb(255 255 255 / 0.03);
+    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -10px rgb(0 0 0 / 0.5);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 28px 52px -14px rgb(0 0 0 / 0.65);
+    --pill: rgb(127 220 159 / 0.14);
+
+    --btn-bg: #7fdc9f;
+    --btn-fg: #0a2417;
+
+    --placeholder: rgb(255 255 255 / 0.06);
+    --edge: rgb(255 255 255 / 0.16);
+    --h1-a: #eaf6ee;
+    --h1-b: #7fdc9f;
+  
+    --wave-1: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1800' height='160' viewBox='0 0 1800 160'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%231d5a43' stop-opacity='0.5'/%3E%3Cstop offset='1' stop-color='%2314412f' stop-opacity='0.5'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,60 C300,26 600,26 900,60 S1500,94 1800,60 V160 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E");
+    --wave-2: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1300' height='160' viewBox='0 0 1300 160'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23237a55' stop-opacity='0.5'/%3E%3Cstop offset='1' stop-color='%23175c3f' stop-opacity='0.55'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,76 C217,38 433,38 650,76 S1083,114 1300,76 V160 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E");
+    --wave-3: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1000' height='160' viewBox='0 0 1000 160'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%232fa06c' stop-opacity='0.45'/%3E%3Cstop offset='1' stop-color='%231a6b45' stop-opacity='0.6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M0,92 C167,62 333,62 500,92 S833,122 1000,92 V160 H0 Z' fill='url(%23g)'/%3E%3C/svg%3E");
+  }
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  background: var(--bg);
+  scroll-padding-top: 6rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+html::before {
+  content: "";
+  position: fixed;
+  inset: -20%;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(40% 36% at 14% 20%, var(--blob-1), transparent 70%),
+    radial-gradient(34% 40% at 86% 14%, var(--blob-2), transparent 70%),
+    radial-gradient(42% 38% at 72% 84%, var(--blob-3), transparent 70%),
+    radial-gradient(36% 36% at 10% 88%, var(--blob-4), transparent 70%);
+  animation: drift 50s ease-in-out infinite alternate;
+}
+
+html::after {
+  content: "";
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 220px;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: repeat-x;
+  background-image: var(--wave-3), var(--wave-2), var(--wave-1);
+  background-size: 1000px 160px, 1300px 160px, 1800px 160px;
+  background-position: 0 60px, 0 30px, 0 0;
+  animation:
+    wave-flow 100s linear infinite,
+    wave-sway 8s ease-in-out infinite alternate;
+}
+
+@keyframes wave-flow {
+  to { background-position: -3000px 60px, -2600px 30px, -1800px 0; }
+}
+
+@keyframes wave-sway {
+  to { transform: translate3d(0, 10px, 0); }
+}
+
+@keyframes drift {
+  from { transform: translate3d(-2%, 1%, 0) scale(1); }
+  to { transform: translate3d(3%, -3%, 0) scale(1.08); }
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body:has(#lightbox[open]) { overflow: hidden; }
+
+::selection { background: var(--accent); color: var(--bg); }
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 90rem;
+  margin: 0 auto;
+  padding: clamp(3rem, 7vw, 6rem) var(--gutter) 6rem;
+}
+
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  margin: 0 0 2.25rem;
+  padding-bottom: 0.08em;
+  text-wrap: balance;
+  color: var(--h1-a);
+  background: linear-gradient(100deg, var(--h1-a) 20%, var(--h1-b) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+  transition: color 0.2s ease;
+}
+a:hover { color: var(--text); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.skip {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 50;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-size: 0.925rem;
+  font-weight: 500;
+  text-decoration: none;
+  transform: translateY(-250%);
+}
+
+.skip:focus { transform: none; color: var(--btn-fg); }
+
+.site-header {
+  position: sticky;
+  top: 0.75rem;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 1.5rem;
+  margin: 0.75rem var(--gutter) 0;
+  padding: 0.45rem 0.5rem 0.45rem 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 1.9rem;
+  background: var(--panel-solid);
+  -webkit-backdrop-filter: blur(20px) saturate(1.6);
+  backdrop-filter: blur(20px) saturate(1.6);
+  box-shadow: var(--ring), var(--shadow);
+}
+
+.site-name {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+}
+
+.site-header nav { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+
+.site-header nav a {
+  padding: 0.45rem 1.05rem;
+  border-radius: 999px;
+  font-size: 0.925rem;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.site-header nav a:hover { color: var(--text); background: var(--pill); }
+
+.site-header nav a[aria-current="page"] {
+  color: var(--btn-fg);
+  background: var(--btn-bg);
+}
+
+/* Phones: one slim pill-shaped bar instead of a tall bar that wraps. */
+@media (max-width: 40rem) {
+  .site-header {
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    top: 0.5rem;
+    margin-top: 0.5rem;
+    padding: 0.35rem 0.4rem 0.35rem 1.15rem;
+    border-radius: 999px;
+  }
+
+  .site-name { font-size: 1.05rem; white-space: nowrap; }
+
+  .site-header nav { flex-wrap: nowrap; gap: 0; }
+
+  .site-header nav a {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.82rem;
+  }
+}
+
+/* Very narrow phones: not enough room for one row, so stack it, centred. */
+@media (max-width: 23rem) {
+  .site-header {
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.6rem 0.5rem 0.5rem;
+    border-radius: 1.5rem;
+  }
+
+  .site-header nav { justify-content: center; }
+  .site-header nav a { padding: 0.4rem 0.8rem; }
+}
+
+/* The artist's name (header and home headline) slowly drifts through the
+   colours of the four seasons: spring blossom, summer sun, autumn leaves,
+   winter frost. The four stops are registered colours, so the browser can
+   blend them smoothly. A full year takes four minutes. */
+@property --n1 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #1a5a32;
+}
+
+@property --n2 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #2f9a52;
+}
+
+@property --n3 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #169a86;
+}
+
+@property --n4 {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: #b5456f;
+}
+
+.intro h1 {
+  --n1: #1a5a32; --n2: #2f9a52; --n3: #169a86; --n4: #b5456f;
+  background-image: linear-gradient(
+    100deg,
+    var(--n1, #1a5a32) 0%,
+    var(--n2, #2f9a52) 34%,
+    var(--n3, #169a86) 66%,
+    var(--n4, #b5456f) 100%
+  );
+  animation: seasons 240s ease-in-out infinite;
+}
+
+@keyframes seasons {
+  0%, 8% { --n1: #1a5a32; --n2: #2f9a52; --n3: #169a86; --n4: #b5456f; }
+  25%, 33% { --n1: #8c5a00; --n2: #5a8a12; --n3: #1f8a5a; --n4: #0f7d95; }
+  50%, 58% { --n1: #6e3410; --n2: #b5541a; --n3: #c2412e; --n4: #8a2f3f; }
+  75%, 83% { --n1: #17406a; --n2: #2a6bb0; --n3: #4a5fc0; --n4: #6a4fb0; }
+  100% { --n1: #1a5a32; --n2: #2f9a52; --n3: #169a86; --n4: #b5456f; }
+}
+
+@media (prefers-color-scheme: dark) {
+  .intro h1 {
+    --n1: #f3fbea; --n2: #a8e6a1; --n3: #6fd6b8; --n4: #f4bfd8;
+    background-image: linear-gradient(
+      100deg,
+      var(--n1, #f3fbea) 0%,
+      var(--n2, #a8e6a1) 34%,
+      var(--n3, #6fd6b8) 66%,
+      var(--n4, #f4bfd8) 100%
+    );
+  }
+
+  @keyframes seasons {
+    0%, 8% { --n1: #f3fbea; --n2: #a8e6a1; --n3: #6fd6b8; --n4: #f4bfd8; }
+    25%, 33% { --n1: #fff8d6; --n2: #ffd86b; --n3: #8fe39a; --n4: #4fd0d6; }
+    50%, 58% { --n1: #fff0d9; --n2: #ffc27a; --n3: #f08a4b; --n4: #e8625a; }
+    75%, 83% { --n1: #f4f9ff; --n2: #bfe0ff; --n3: #8fb4f0; --n4: #c9b8f0; }
+    100% { --n1: #f3fbea; --n2: #a8e6a1; --n3: #6fd6b8; --n4: #f4bfd8; }
+  }
+}
+
+.site-footer {
+  padding: 1.5rem var(--gutter) 1.75rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.prose {
+  max-width: var(--measure);
+  font-family: var(--serif);
+  font-size: 1.2rem;
+  line-height: 1.75;
+  padding: clamp(1.5rem, 4vw, 2.75rem);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--panel);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  backdrop-filter: blur(20px) saturate(1.4);
+  box-shadow: var(--ring), var(--shadow);
+}
+
+/* About page: a large photo beside the biography on wide screens, above it
+   on narrow ones. The text panel stretches to the photo's height and
+   centres its content, so the two halves feel like one composition. */
+.about {
+  display: grid;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: stretch;
+}
+
+/* The About page gets a wider canvas than the other pages, so the photo
+   can be large on big screens. */
+main:has(.about) { max-width: 120rem; }
+
+@media (min-width: 60rem) {
+  .about:has(.portrait) {
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  }
+}
+
+.portrait {
+  position: relative;
+  margin: 0;
+  border-radius: calc(var(--radius) + 0.5rem);
+  overflow: hidden;
+  background: var(--placeholder);
+  box-shadow: var(--ring), var(--shadow-lift);
+}
+
+/* On wide screens the photo fills the full height of the row (cropping a
+   little if the biography is long) so it always lines up with the panel. */
+.portrait img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 1.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (min-width: 60rem) {
+  .portrait img { height: 100%; object-fit: cover; object-position: 50% 60%; }
+}
+
+@media (hover: hover) {
+  .portrait:hover img { transform: scale(1.03); }
+}
+
+.portrait::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px var(--edge);
+  pointer-events: none;
+}
+
+/* The biography panel: roomy, with a large opening paragraph. */
+.prose.bio {
+  max-width: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(1.75rem, 4.5vw, 3.5rem);
+  border-radius: calc(var(--radius) + 0.5rem);
+}
+
+.eyebrow {
+  margin: 0 0 1.5rem !important;
+  font-family: var(--sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.eyebrow::before {
+  content: "";
+  display: inline-block;
+  width: 2rem;
+  height: 1px;
+  margin-right: 0.85rem;
+  vertical-align: middle;
+  background: currentColor;
+  opacity: 0.7;
+}
+
+.prose.bio .lead {
+  font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  line-height: 1.5;
+  letter-spacing: -0.01em;
+}
+
+.prose.bio p:not(.eyebrow):not(.lead) { color: var(--muted); }
+.prose.bio p:last-of-type { margin-bottom: 0; }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2.25rem;
+  font-family: var(--sans);
+}
+
+.prose p { margin: 0 0 1.4em; text-wrap: pretty; }
+.prose p:last-child { margin-bottom: 0; }
+
+.intro { margin-bottom: clamp(3.5rem, 8vw, 6rem); }
+
+.intro h1 {
+  width: fit-content;
+  max-width: 100%;
+  font-size: clamp(3rem, 9vw, 6.5rem);
+  padding: 0.15em 0.35em 0.15em 0.15em;
+  margin-left: -0.15em;
+  letter-spacing: normal;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+}
+
+.intro p {
+  margin: 0;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  color: var(--muted);
+}
+
+.more {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.more a,
+.actions a {
+  display: inline-block;
+  padding: 0.75rem 1.6rem;
+  border-radius: 999px;
+  background: var(--btn-bg);
+  color: var(--btn-fg);
+  font-size: 0.975rem;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: 0 8px 20px -6px rgb(15 60 35 / 0.45);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.more a:hover,
+.actions a:hover {
+  color: var(--btn-fg);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -8px rgb(15 60 35 / 0.5);
+}
+
+.actions a.ghost {
+  background: var(--pill);
+  color: var(--text);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+
+.actions a.ghost:hover { color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
+
+/* Gallery: every painting keeps its own proportions and each row is
+   justified to the same height, so there is no empty matting around
+   the artwork. --r is the painting's width / height, set per item. */
+.gallery {
+  --row: clamp(9.5rem, 21vw, 17rem);
+  --gap: clamp(1rem, 2.2vw, 1.6rem);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(1.4rem, 3vw, 2.2rem) var(--gap);
+}
+
+/* Soaks up the spare space on the last row so it isn't stretched. */
+.gallery::after { content: ""; flex-grow: 100000; }
+
+.gallery li {
+  min-width: 0;
+  max-width: 100%;
+  flex-grow: calc(var(--r) * 100);
+  flex-basis: calc(var(--r) * var(--row));
+}
+
+/* Home page: the same paintings in one row that scrolls sideways. Each
+   item is as tall as --h and as wide as its proportions require. */
+.gallery.carousel {
+  --h: clamp(13rem, min(42vh, 40vw), 27rem);
+  flex-wrap: nowrap;
+  gap: var(--gap);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: thin;
+  scrollbar-color: var(--edge) transparent;
+  /* Run to the edge of the page, with room above and below for the hover lift and shadow. */
+  margin: -1.5rem calc(var(--gutter) * -1) 0;
+  padding: 1.5rem var(--gutter) 2rem;
+}
+
+.gallery.carousel.has-nav { scrollbar-width: none; }
+.gallery.carousel.has-nav::-webkit-scrollbar { display: none; }
+
+.gallery.carousel::after { display: none; }
+
+.gallery.carousel li {
+  flex: 0 0 calc(var(--r) * var(--h));
+  max-width: none;
+  scroll-snap-align: start;
+}
+
+.carousel-nav { display: flex; gap: 0.5rem; }
+.carousel-nav[hidden] { display: none; }
+
+.carousel-btn {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  background: var(--panel-solid);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: var(--text);
+  cursor: pointer;
+  box-shadow: var(--ring), var(--shadow);
+  transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.carousel-btn:hover:not(:disabled) { background: var(--pill); }
+.carousel-btn:disabled { opacity: 0.35; cursor: default; }
+
+.thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: var(--r);
+  padding: 0;
+  border: 0;
+  border-radius: 0.85rem;
+  overflow: hidden;
+  background: var(--placeholder);
+  box-shadow: var(--ring), var(--shadow);
+  cursor: zoom-in;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* A hairline edge drawn over the image, like the edge of a canvas. */
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 1px var(--edge);
+  pointer-events: none;
+}
+
+.thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+@media (hover: hover) {
+  .thumb:hover { transform: translateY(-4px); box-shadow: var(--ring), var(--shadow-lift); }
+  .thumb:hover img { transform: scale(1.03); }
+}
+
+.caption {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.65rem;
+  margin: 0.7rem 0.2rem 0;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: var(--muted);
+}
+
+.caption em {
+  font-family: var(--serif);
+  font-size: 1.08rem;
+  font-style: italic;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.email {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+}
+
+.email a {
+  font-size: clamp(1.1rem, 3.6vw, 1.5rem);
+  overflow-wrap: anywhere;
+}
+
+.copy {
+  padding: 0.4rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--accent);
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.copy:hover { background: var(--pill); }
+
+/* Painting viewer */
+#lightbox {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: var(--gutter) max(var(--gutter), 5.5rem);
+  border: 0;
+  background: transparent;
+  color: #fff;
+}
+
+#lightbox[open] {
+  display: grid;
+  place-items: center;
+  animation: fade-in 0.3s ease-out;
+}
+
+#lightbox::backdrop {
+  background:
+    radial-gradient(70% 60% at 20% 10%, rgb(30 110 60 / 0.6), transparent 70%),
+    radial-gradient(60% 60% at 85% 95%, rgb(20 100 70 / 0.5), transparent 70%),
+    rgb(4 16 10 / 0.9);
+  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
+  animation: fade-in 0.3s ease-out;
+}
+
+#lightbox figure {
+  display: grid;
+  justify-items: center;
+  gap: 1rem;
+  max-width: 100%;
+  margin: 0;
+}
+
+#lightbox img {
+  max-width: 100%;
+  max-height: calc(100dvh - 2 * var(--gutter) - 4.5rem);
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 24px 70px rgb(0 0 0 / 0.55);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+#lightbox img.ready { opacity: 1; }
+
+#lightbox figcaption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: baseline;
+  gap: 0 0.75rem;
+  text-align: center;
+  font-size: 0.925rem;
+  color: rgb(255 255 255 / 0.68);
+}
+
+#lightbox figcaption em {
+  font-family: var(--serif);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #fff;
+}
+
+#lightbox .count {
+  position: fixed;
+  top: 1.6rem;
+  left: 1.5rem;
+  margin: 0;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  color: rgb(255 255 255 / 0.68);
+}
+
+#lightbox .close,
+#lightbox .nav {
+  position: fixed;
+  display: grid;
+  place-items: center;
+  width: 2.9rem;
+  height: 2.9rem;
+  padding: 0;
+  border: 1px solid rgb(255 255 255 / 0.22);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.12);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+#lightbox .close:hover,
+#lightbox .nav:hover {
+  background: rgb(255 255 255 / 0.22);
+  border-color: rgb(255 255 255 / 0.45);
+}
+
+#lightbox .close { top: 1.25rem; right: 1.25rem; }
+#lightbox .nav { top: 50%; translate: 0 -50%; }
+#lightbox .prev { left: 1.25rem; }
+#lightbox .next { right: 1.25rem; }
+#lightbox.single .nav { display: none; }
+
+@media (max-width: 40rem) {
+  #lightbox { padding: 4.5rem var(--gutter) 5.5rem; }
+  #lightbox img { max-height: calc(100dvh - 12rem); }
+  #lightbox .nav { top: auto; bottom: 1.25rem; translate: none; }
+  #lightbox .prev { left: 1.25rem; }
+  #lightbox .next { right: 1.25rem; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  #lightbox::backdrop {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+.artist-name {
+  font-family: "Fleur De Leah", cursive;
+  font-weight: 400;
+  font-style: normal;
+}
