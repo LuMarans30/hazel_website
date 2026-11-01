@@ -47,8 +47,6 @@ pub fn page(
                 }
                 link rel="icon" href=(FAVICON);
                 link rel="stylesheet" href=(format!("{root}style.css"));
-                link rel="preconnect" href="https://fonts.googleapis.com";
-                link rel="preconnect" href="https://fonts.gstatic.com" crossorigin;
                 script src=(format!("{root}gallery.js")) defer {}
 
                 @if let Some(code) = &content.goatcounter_code {

@@ -1,4 +1,10 @@
-@import url('https://fonts.googleapis.com/css2?family=Fleur+De+Leah&display=swap');
+@font-face {
+  font-family: 'Fleur De Leah';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('fonts/FleurDeLeah-Regular.ttf') format('truetype');
+}
 
 :root {
   --bg: #f4f9f2;
@@ -245,7 +251,6 @@ a:hover { color: var(--text); }
   background: var(--btn-bg);
 }
 
-/* Phones: one slim pill-shaped bar instead of a tall bar that wraps. */
 @media (max-width: 40rem) {
   .site-header {
     flex-wrap: nowrap;
@@ -266,7 +271,6 @@ a:hover { color: var(--text); }
   }
 }
 
-/* Very narrow phones: not enough room for one row, so stack it, centred. */
 @media (max-width: 23rem) {
   .site-header {
     flex-direction: column;
@@ -279,10 +283,6 @@ a:hover { color: var(--text); }
   .site-header nav a { padding: 0.4rem 0.8rem; }
 }
 
-/* The artist's name (header and home headline) slowly drifts through the
-   colours of the four seasons: spring blossom, summer sun, autumn leaves,
-   winter frost. The four stops are registered colours, so the browser can
-   blend them smoothly. A full year takes four minutes. */
 @property --n1 {
   syntax: "<color>";
   inherits: false;
@@ -370,17 +370,12 @@ a:hover { color: var(--text); }
   box-shadow: var(--ring), var(--shadow);
 }
 
-/* About page: a large photo beside the biography on wide screens, above it
-   on narrow ones. The text panel stretches to the photo's height and
-   centres its content, so the two halves feel like one composition. */
 .about {
   display: grid;
   gap: clamp(1.5rem, 4vw, 3rem);
   align-items: stretch;
 }
 
-/* The About page gets a wider canvas than the other pages, so the photo
-   can be large on big screens. */
 main:has(.about) { max-width: 120rem; }
 
 @media (min-width: 60rem) {
@@ -398,8 +393,6 @@ main:has(.about) { max-width: 120rem; }
   box-shadow: var(--ring), var(--shadow-lift);
 }
 
-/* On wide screens the photo fills the full height of the row (cropping a
-   little if the biography is long) so it always lines up with the panel. */
 .portrait img {
   display: block;
   width: 100%;
@@ -424,7 +417,6 @@ main:has(.about) { max-width: 120rem; }
   pointer-events: none;
 }
 
-/* The biography panel: roomy, with a large opening paragraph. */
 .prose.bio {
   max-width: none;
   display: flex;
@@ -532,9 +524,6 @@ main:has(.about) { max-width: 120rem; }
 
 .actions a.ghost:hover { color: var(--text); box-shadow: inset 0 0 0 1px var(--accent); }
 
-/* Gallery: every painting keeps its own proportions and each row is
-   justified to the same height, so there is no empty matting around
-   the artwork. --r is the painting's width / height, set per item. */
 .gallery {
   --row: clamp(9.5rem, 21vw, 17rem);
   --gap: clamp(1rem, 2.2vw, 1.6rem);
@@ -546,7 +535,6 @@ main:has(.about) { max-width: 120rem; }
   gap: clamp(1.4rem, 3vw, 2.2rem) var(--gap);
 }
 
-/* Soaks up the spare space on the last row so it isn't stretched. */
 .gallery::after { content: ""; flex-grow: 100000; }
 
 .gallery li {
@@ -556,8 +544,6 @@ main:has(.about) { max-width: 120rem; }
   flex-basis: calc(var(--r) * var(--row));
 }
 
-/* Home page: the same paintings in one row that scrolls sideways. Each
-   item is as tall as --h and as wide as its proportions require. */
 .gallery.carousel {
   --h: clamp(13rem, min(42vh, 40vw), 27rem);
   flex-wrap: nowrap;
@@ -622,7 +608,6 @@ main:has(.about) { max-width: 120rem; }
   transition: transform 0.35s ease, box-shadow 0.35s ease;
 }
 
-/* A hairline edge drawn over the image, like the edge of a canvas. */
 .thumb::after {
   content: "";
   position: absolute;
@@ -691,7 +676,6 @@ main:has(.about) { max-width: 120rem; }
 
 .copy:hover { background: var(--pill); }
 
-/* Painting viewer */
 #lightbox {
   width: 100vw;
   height: 100dvh;
