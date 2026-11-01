@@ -28,6 +28,7 @@ pub fn page(
     body: Markup,
 ) -> Markup {
     let root = root_of(current);
+    const HERO_FONT: &str = "fonts/FleurDeLeah-Regular.woff2";
 
     html! {
         (DOCTYPE)
@@ -46,6 +47,10 @@ pub fn page(
                     }
                 }
                 link rel="icon" href=(FAVICON);
+                @if current.is_empty() {
+                    link rel="preload" href=(format!("{root}{HERO_FONT}"))
+                        as="font" type="font/woff2" crossorigin;
+                }
                 link rel="stylesheet" href=(format!("{root}style.css"));
                 script src=(format!("{root}gallery.js")) defer {}
 
