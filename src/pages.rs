@@ -1,7 +1,7 @@
 use maud::{Markup, html};
 
 use crate::content::{Painting, SiteContent};
-use crate::layout::page;
+use crate::layout::{page, root_of, url};
 
 const ICON_PREV: &str = "M15 5l-7 7 7 7";
 const ICON_NEXT: &str = "M9 5l7 7-7 7";
@@ -17,8 +17,8 @@ fn icon(path: &str) -> Markup {
     }
 }
 
-fn painting_item(p: &Painting) -> Markup {
-    let src = format!("/images/{}", p.file);
+fn painting_item(p: &Painting, root: &str) -> Markup {
+    let src = format!("{root}images/{}", p.file);
     let details = p.details();
 
     html! {
@@ -44,6 +44,8 @@ fn painting_item(p: &Painting) -> Markup {
 const HOME_COUNT: usize = 8;
 
 pub fn home(content: &SiteContent) -> Markup {
+    let root = root_of("");
+
     let mut featured: Vec<&Painting> = content.paintings.iter().filter(|p| p.is_featured).collect();
     if featured.is_empty() {
         featured = content.paintings.iter().take(HOME_COUNT).collect();
@@ -59,10 +61,10 @@ pub fn home(content: &SiteContent) -> Markup {
                 p { (content.tagline) }
             }
             ul.gallery.carousel aria-label="Selected paintings" {
-                @for p in featured { (painting_item(p)) }
+                @for p in featured { (painting_item(p, &root)) }
             }
             div.more {
-                a href="/paintings/" { "See all " (content.paintings.len()) " paintings" }
+                a href=(url(&root, "paintings/")) { "See all " (content.paintings.len()) " paintings" }
                 div.carousel-nav hidden {
                     button.carousel-btn type="button" data-carousel="prev"
                         aria-label="Scroll to earlier paintings" { (icon(ICON_PREV)) }
@@ -76,14 +78,16 @@ pub fn home(content: &SiteContent) -> Markup {
 }
 
 pub fn gallery(content: &SiteContent) -> Markup {
+    let root = root_of("paintings/");
+
     page(
         Some("Paintings"),
-        "/paintings/",
+        "paintings/",
         content,
         html! {
             h1 { "Paintings" }
             ul.gallery {
-                @for p in &content.paintings { (painting_item(p)) }
+                @for p in &content.paintings { (painting_item(p, &root)) }
             }
             (lightbox())
         },
@@ -91,6 +95,7 @@ pub fn gallery(content: &SiteContent) -> Markup {
 }
 
 pub fn about(content: &SiteContent) -> Markup {
+    let root = root_of("about/");
     let alt = content
         .portrait_alt
         .clone()
@@ -98,13 +103,13 @@ pub fn about(content: &SiteContent) -> Markup {
 
     page(
         Some("About"),
-        "/about/",
+        "about/",
         content,
         html! {
             h1 { "About" }
             div.about {
                 @if let Some(file) = &content.portrait {
-                    @let src = format!("/images/{file}");
+                    @let src = format!("{root}images/{file}");
                     figure.portrait {
                         @if let Some((w, h)) = content.portrait_dims {
                             img src=(src) alt=(alt) width=(w) height=(h) decoding="async";
@@ -119,8 +124,8 @@ pub fn about(content: &SiteContent) -> Markup {
                         p.lead[i == 0] { (paragraph) }
                     }
                     div.actions {
-                        a href="/contact/" { "Get in touch" }
-                        a.ghost href="/paintings/" { "View the paintings" }
+                        a href=(url(&root, "contact/")) { "Get in touch" }
+                        a.ghost href=(url(&root, "paintings/")) { "View the paintings" }
                     }
                 }
             }
@@ -131,7 +136,7 @@ pub fn about(content: &SiteContent) -> Markup {
 pub fn contact(content: &SiteContent) -> Markup {
     page(
         Some("Contact"),
-        "/contact/",
+        "contact/",
         content,
         html! {
             h1 { "Contact" }
@@ -163,4 +168,3 @@ fn lightbox() -> Markup {
         }
     }
 }
-
