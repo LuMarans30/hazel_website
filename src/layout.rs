@@ -28,10 +28,6 @@ pub fn page(
     body: Markup,
 ) -> Markup {
     let root = root_of(current);
-    let full_title = match title {
-        Some(t) => format!("{t} - {}", content.artist_name),
-        None => content.artist_name.clone(),
-    };
 
     html! {
         (DOCTYPE)
@@ -42,12 +38,25 @@ pub fn page(
                 meta name="description" content=(content.tagline);
                 meta name="theme-color" content="#f4f9f2" media="(prefers-color-scheme: light)";
                 meta name="theme-color" content="#0a130f" media="(prefers-color-scheme: dark)";
-                title { (full_title) }
+                title {
+                    @if let Some(t) = title {
+                        (t) " - " (content.artist_name)
+                    } @else {
+                        (content.artist_name)
+                    }
+                }
                 link rel="icon" href=(FAVICON);
                 link rel="stylesheet" href=(format!("{root}style.css"));
                 link rel="preconnect" href="https://fonts.googleapis.com";
                 link rel="preconnect" href="https://fonts.gstatic.com" crossorigin;
                 script src=(format!("{root}gallery.js")) defer {}
+
+                @if let Some(code) = &content.goatcounter_code {
+                    script
+                        data-goatcounter=(format!("https://{code}.goatcounter.com/count"))
+                        async
+                        src="//gc.zgo.at/count.js" {}
+                }
             }
             body {
                 a.skip href="#main" { "Skip to content" }

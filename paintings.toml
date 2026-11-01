@@ -6,7 +6,8 @@ bio = [
 ]
 email = "hazeladdinall09@gmail.com"
 portrait = "hazel-portrait.jpg"
-portrait_alt = "Hazel Addinall in the nature" 
+portrait_alt = "Hazel Addinall in the nature"
+goatcounter_code="lumarans30"
 
 [[paintings]]
 file = "paintings_01.jpg"

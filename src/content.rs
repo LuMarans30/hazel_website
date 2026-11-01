@@ -62,6 +62,8 @@ pub struct SiteContent {
     #[serde(skip)]
     pub portrait_dims: Option<(u32, u32)>,
     pub paintings: Vec<Painting>,
+    #[serde(default)]
+    pub goatcounter_code: Option<String>,
 }
 
 impl SiteContent {
