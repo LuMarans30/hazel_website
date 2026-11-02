@@ -21,7 +21,6 @@ const FALLBACK_MIN_WIDTH: u32 = 800;
 
 pub const SOCIAL_NAME: &str = "social.jpg";
 pub const SOCIAL_SIZE: (u32, u32) = (1200, 630);
-const SOCIAL_BG: [u8; 3] = [0xf4, 0xf9, 0xf2];
 const SOCIAL_PAD: u32 = 40;
 const SOCIAL_QUALITY: u8 = 85;
 
@@ -233,7 +232,11 @@ pub fn publish_social(img: &Image, out_dir: &Path) -> io::Result<()> {
         .resize(w - 2 * SOCIAL_PAD, h - 2 * SOCIAL_PAD, FilterType::Lanczos3)
         .into_rgb8();
 
-    let mut canvas = RgbImage::from_pixel(w, h, image::Rgb(SOCIAL_BG));
+    let mut canvas = src
+        .resize_to_fill(w, h, FilterType::Triangle)
+        .blur(28.0)
+        .into_rgb8();
+
     let x = (w - inner.width()) / 2;
     let y = (h - inner.height()) / 2;
     image::imageops::overlay(&mut canvas, &inner, x as i64, y as i64);
