@@ -68,6 +68,8 @@ pub struct SiteContent {
     pub bio: Vec<String>,
     pub email: String,
     #[serde(default)]
+    pub site_url: Option<String>,
+    #[serde(default)]
     pub portrait: Option<PathBuf>,
     #[serde(default)]
     pub portrait_alt: Option<String>,
@@ -134,6 +136,16 @@ impl SiteContent {
             images::publish(&p.image, out_dir)?;
         }
         Ok(())
+    }
+
+    pub fn canonical_url(&self, path: &str) -> Option<String> {
+        let base = self.site_url.as_deref()?.trim_end_matches('/');
+        let path = path.trim_start_matches('/');
+        if path.is_empty() {
+            Some(format!("{base}/"))
+        } else {
+            Some(format!("{base}/{path}"))
+        }
     }
 }
 
