@@ -33,6 +33,14 @@ jobs:
       - name: Cache cargo registry & target
         uses: Swatinem/rust-cache@v2
 
+      - name: Cache processed images
+        uses: actions/cache@v4
+        with:
+          path: .cache/images
+          key: images-${{ hashFiles('images/**', 'src/images.rs', 'Cargo.lock') }}
+          restore-keys: |
+            images-
+
       - name: Build static site
         run: cargo run --release
 

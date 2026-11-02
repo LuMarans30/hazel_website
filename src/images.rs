@@ -2,7 +2,6 @@ use std::fs;
 use std::io;
 use std::path::Component;
 use std::path::{Path, PathBuf};
-use std::time::SystemTime;
 
 use image::RgbImage;
 use image::imageops::FilterType;
@@ -86,8 +85,13 @@ fn io_err(e: impl std::fmt::Display) -> io::Error {
     io::Error::other(e.to_string())
 }
 
-fn modified(path: &Path) -> io::Result<SystemTime> {
-    fs::metadata(path)?.modified()
+fn fnv1a(bytes: &[u8]) -> u64 {
+    let mut hash: u64 = 0xcbf2_9ce4_8422_2325;
+    for &byte in bytes {
+        hash ^= byte as u64;
+        hash = hash.wrapping_mul(0x100_0000_01b3);
+    }
+    hash
 }
 
 pub fn build(file: &Path) -> io::Result<Image> {
@@ -97,7 +101,7 @@ pub fn build(file: &Path) -> io::Result<Image> {
 fn build_inner(file: &Path) -> io::Result<Image> {
     let stem = stem_of(file)?;
     let src = Path::new(SOURCE_DIR).join(file);
-    let src_time = modified(&src)?;
+    let src_hash = fnv1a(&fs::read(&src)?);
     fs::create_dir_all(cache_dir())?;
 
     let mut decoder = ImageReader::open(&src)?
@@ -125,11 +129,19 @@ fn build_inner(file: &Path) -> io::Result<Image> {
     widths.push(ow.min(max));
     widths.dedup();
 
-    let stale: Vec<u32> = widths
-        .iter()
-        .copied()
-        .filter(|&w| !modified(&cache_path(&stem, w)).is_ok_and(|t| t >= src_time))
-        .collect();
+    let hash_path = cache_dir().join(format!("{stem}.hash"));
+    let src_hash = src_hash.to_string();
+    let hash_matches = fs::read_to_string(&hash_path).is_ok_and(|cached| cached == src_hash);
+
+    let stale: Vec<u32> = if hash_matches {
+        widths
+            .iter()
+            .copied()
+            .filter(|&w| !cache_path(&stem, w).exists())
+            .collect()
+    } else {
+        widths.clone()
+    };
 
     if !stale.is_empty() {
         let mut img = DynamicImage::from_decoder(decoder).map_err(io_err)?;
@@ -155,6 +167,10 @@ fn build_inner(file: &Path) -> io::Result<Image> {
                 .map_err(io_err)?
                 .encode(QUALITY);
             fs::write(cache_path(&stem, w), &*bytes)?;
+        }
+
+        if !hash_matches {
+            fs::write(&hash_path, &src_hash)?;
         }
     }
 
@@ -198,4 +214,16 @@ pub fn publish(img: &Image, out_dir: &Path) -> io::Result<()> {
         )?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::fnv1a;
+
+    #[test]
+    fn fnv1a_matches_reference_vectors() {
+        assert_eq!(fnv1a(b""), 0xcbf2_9ce4_8422_2325);
+        assert_eq!(fnv1a(b"a"), 0xaf63_dc4c_8601_ec8c);
+        assert_eq!(fnv1a(b"foobar"), 0x8594_4171_f739_67e8);
+    }
 }
