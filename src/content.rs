@@ -53,11 +53,15 @@ impl Painting {
 
     pub fn details(&self) -> String {
         let year = self.year.map(|y| y.to_string());
-        [year.as_deref(), self.medium.as_deref(), self.size.as_deref()]
-            .into_iter()
-            .flatten()
-            .collect::<Vec<_>>()
-            .join(", ")
+        [
+            year.as_deref(),
+            self.medium.as_deref(),
+            self.size.as_deref(),
+        ]
+        .into_iter()
+        .flatten()
+        .collect::<Vec<_>>()
+        .join(", ")
     }
 }
 
@@ -78,6 +82,8 @@ pub struct SiteContent {
     pub paintings: Vec<Painting>,
     #[serde(default)]
     pub goatcounter_code: Option<String>,
+    #[serde(default)]
+    pub social_image: Option<PathBuf>,
 }
 
 impl SiteContent {
@@ -97,6 +103,17 @@ impl SiteContent {
     }
 
     fn prepare(&mut self) -> io::Result<()> {
+        if let Some(file) = &self.social_image {
+            let known = self.portrait.as_ref() == Some(file)
+                || self.paintings.iter().any(|p| &p.file == file);
+            if !known {
+                return Err(io::Error::other(format!(
+                    "social_image '{}' must match an image file",
+                    file.display()
+                )));
+            }
+        }
+
         if let Some(file) = &self.portrait {
             self.portrait_image = Some(images::build(file)?);
         }
@@ -145,6 +162,35 @@ impl SiteContent {
             Some(format!("{base}/"))
         } else {
             Some(format!("{base}/{path}"))
+        }
+    }
+
+    pub fn social_card(&self) -> Option<(&Image, &str)> {
+        if let Some(file) = &self.social_image {
+            if let Some(p) = self.paintings.iter().find(|p| &p.file == file) {
+                return Some((&p.image, p.alt_text()));
+            }
+            if self.portrait.as_ref() == Some(file) {
+                let img = self.portrait_image.as_ref()?;
+                let alt = self.portrait_alt.as_deref().unwrap_or(&self.artist_name);
+                return Some((img, alt));
+            }
+        }
+        self.paintings
+            .iter()
+            .find(|p| p.is_featured)
+            .or_else(|| self.paintings.first())
+            .map(|p| (&p.image, p.alt_text()))
+    }
+
+    pub fn social_url(&self) -> Option<String> {
+        self.canonical_url(images::SOCIAL_NAME)
+    }
+
+    pub fn publish_social(&self, out_dir: &Path) -> io::Result<()> {
+        match self.social_card() {
+            Some((img, _)) => images::publish_social(img, out_dir),
+            None => Ok(()),
         }
     }
 }

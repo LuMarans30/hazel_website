@@ -30,6 +30,14 @@ pub fn page(
     let root = root_of(current);
     const HERO_FONT: &str = "fonts/FleurDeLeah-Regular.woff2";
 
+    let full_title = match title {
+        Some(t) => format!("{t} - {}", content.artist_name),
+        None => content.artist_name.clone(),
+    };
+    let canonical = content.canonical_url(current);
+    let social = content.social_url().zip(content.social_card());
+    let (card_w, card_h) = crate::images::SOCIAL_SIZE;
+
     html! {
         (DOCTYPE)
         html lang="en" {
@@ -39,13 +47,27 @@ pub fn page(
                 meta name="description" content=(content.tagline);
                 meta name="theme-color" content="#f4f9f2" media="(prefers-color-scheme: light)";
                 meta name="theme-color" content="#0a130f" media="(prefers-color-scheme: dark)";
-                title {
-                    @if let Some(t) = title {
-                        (t) " - " (content.artist_name)
-                    } @else {
-                        (content.artist_name)
-                    }
+                title { (full_title) }
+
+                @if let Some(url) = &canonical {
+                    link rel="canonical" href=(url);
+                    meta property="og:url" content=(url);
                 }
+                meta property="og:type" content="website";
+                meta property="og:site_name" content=(content.artist_name);
+                meta property="og:title" content=(full_title);
+                meta property="og:description" content=(content.tagline);
+                @if let Some((img_url, (_, alt))) = &social {
+                    meta property="og:image" content=(img_url);
+                    meta property="og:image:type" content="image/jpeg";
+                    meta property="og:image:width" content=(card_w);
+                    meta property="og:image:height" content=(card_h);
+                    meta property="og:image:alt" content=(alt);
+                    meta name="twitter:card" content="summary_large_image";
+                } @else {
+                    meta name="twitter:card" content="summary";
+                }
+
                 link rel="icon" href=(FAVICON);
                 @if current.is_empty() {
                     link rel="preload" href=(format!("{root}{HERO_FONT}"))

@@ -31,6 +31,11 @@ fn main() -> io::Result<()> {
 
     content.publish_images(&out.join("images"))?;
 
+    content.publish_social(out)?;
+    if content.site_url.is_none() {
+        eprintln!("warning: site_url not set; canonical and social-card tags are omitted");
+    }
+
     let css_source = fs::read_to_string(STYLES)
         .map_err(|e| io::Error::other(format!("Failed to read CSS file at '{STYLES}': {e}")))?;
 
