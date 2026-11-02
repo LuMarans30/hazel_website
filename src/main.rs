@@ -14,11 +14,12 @@ use maud::Markup;
 const OUT: &str = "dist";
 const STATIC: &str = "static";
 const STYLES: &str = "styles/style.css";
+const CONTENT: &str = "paintings.toml";
 
 fn main() -> io::Result<()> {
     let out = Path::new(OUT);
     let static_dir = Path::new(STATIC);
-    let content = content::SiteContent::load("paintings.toml")?;
+    let content = content::SiteContent::load(CONTENT)?;
 
     if out.exists() {
         fs::remove_dir_all(out)?;
