@@ -37,7 +37,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: .cache/images
-          key: images-${{ hashFiles('images/**', 'src/images.rs', 'Cargo.lock') }}
+          key: images-${{ hashFiles('assets/images/**', 'src/images.rs', 'Cargo.lock') }}
           restore-keys: |
             images-
 

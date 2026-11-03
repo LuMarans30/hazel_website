@@ -13,7 +13,7 @@ use moxcms::ColorProfile;
 use moxcms::Layout;
 use moxcms::TransformOptions;
 
-pub const SOURCE_DIR: &str = "images";
+pub const SOURCE_DIR: &str = "assets/images";
 const CACHE_ROOT: &str = ".cache/images";
 const WIDTHS: [u32; 4] = [480, 800, 1200, 1800];
 const QUALITY: f32 = 82.0;

@@ -13,7 +13,7 @@ use maud::Markup;
 
 const OUT: &str = "dist";
 const STATIC: &str = "static";
-const STYLES: &str = "styles/style.css";
+const STYLES: &str = "assets/styles/style.css";
 const CONTENT: &str = "paintings.toml";
 
 fn main() -> io::Result<()> {
