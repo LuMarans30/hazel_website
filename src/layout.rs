@@ -75,6 +75,7 @@ pub fn page(
                 }
                 link rel="stylesheet" href=(format!("{root}style.css"));
                 script src=(format!("{root}gallery.js")) defer {}
+                script src=(format!("{root}hills.js")) defer {}
 
                 @if let Some(code) = &content.goatcounter_code {
                     script
