@@ -12,17 +12,6 @@
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const darkScheme = matchMedia('(prefers-color-scheme: dark)');
 
-  const FALLBACK = {
-    light: {
-      top: [0.65, 0.89, 0.72, 0.44, 0.81, 0.59, 0.31, 0.75, 0.53, 0.20, 0.66, 0.46],
-      bot: [0.49, 0.82, 0.63, 0.25, 0.68, 0.48, 0.18, 0.58, 0.41, 0.10, 0.47, 0.34],
-    },
-    dark: {
-      top: [0.114, 0.353, 0.263, 0.137, 0.478, 0.333, 0.184, 0.627, 0.424, 0.120, 0.500, 0.360],
-      bot: [0.078, 0.255, 0.184, 0.090, 0.360, 0.247, 0.102, 0.420, 0.270, 0.060, 0.330, 0.240],
-    },
-  };
-
   const TRAIL = 24;
   const WAKE_LIFE = 2.8;
 
@@ -345,8 +334,8 @@ void main() {
   let canvas = null;
   let gl = null;
   let uSize, uScale, uTime, uDark, uTrail, uTrailMask, uWake, uCursor, uTrailAux, uTop, uBot;
-  let hillTop = new Float32Array(FALLBACK.light.top);
-  let hillBot = new Float32Array(FALLBACK.light.bot);
+  let hillTop = new Float32Array(12);
+  let hillBot = new Float32Array(12);
   let cssW = 0;
   let cssH = 0;
   let scale = 1;
@@ -467,14 +456,26 @@ void main() {
     return true;
   }
 
+  function readHills(style, which) {
+    const out = new Float32Array(12);
+    for (let i = 0; i < 4; i++) {
+      const hex = style.getPropertyValue(`--hill-${which}-${i + 1}`).trim();
+      if (!/^#[0-9a-f]{6}$/i.test(hex)) return null;
+      for (let j = 0; j < 3; j++) {
+        out[i * 3 + j] = parseInt(hex.slice(1 + j * 2, 3 + j * 2), 16) / 255;
+      }
+    }
+    return out;
+  }
+
   function refreshPalette() {
-    let c = null;
-    try {
-      c = window.siteSeason && window.siteSeason.hills();
-    } catch (_) {}
-    if (!c) c = darkScheme.matches ? FALLBACK.dark : FALLBACK.light;
-    hillTop = new Float32Array(c.top);
-    hillBot = new Float32Array(c.bot);
+    const style = getComputedStyle(root);
+    const top = readHills(style, 'top');
+    const bot = readHills(style, 'bot');
+    if (!top || !bot) return false;
+    hillTop = top;
+    hillBot = bot;
+    return true;
   }
 
   function resize() {
@@ -615,6 +616,11 @@ void main() {
   }
 
   function init() {
+    if (!refreshPalette()) {
+      console.warn('hills: --hill-* colors not found; is the theme <style> in <head>?');
+      return;
+    }
+
     canvas = document.createElement('canvas');
     canvas.className = 'hills';
     canvas.setAttribute('aria-hidden', 'true');
@@ -630,13 +636,10 @@ void main() {
     addEventListener('pointermove', onPointerMove, { passive: true });
     addEventListener('pointerdown', onPointerDown, { passive: true });
     root.addEventListener('pointerleave', () => (isPointerActive = false));
-    refreshPalette();
-    const repaint = () => {
+    darkScheme.addEventListener('change', () => {
       refreshPalette();
       draw();
-    };
-    darkScheme.addEventListener('change', repaint);
-    addEventListener('seasonchange', repaint);
+    });
     document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
     addEventListener('pagehide', () => {
       try {

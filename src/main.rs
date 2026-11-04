@@ -2,6 +2,7 @@ mod content;
 mod images;
 mod layout;
 mod pages;
+mod theme;
 
 use std::fs;
 use std::io;
@@ -15,11 +16,14 @@ const OUT: &str = "dist";
 const STATIC: &str = "static";
 const STYLES: &str = "assets/styles/style.css";
 const CONTENT: &str = "paintings.toml";
+const THEME: &str = "theme.toml";
 
 fn main() -> io::Result<()> {
     let out = Path::new(OUT);
     let static_dir = Path::new(STATIC);
-    let content = content::SiteContent::load(CONTENT)?;
+    let mut content = content::SiteContent::load(CONTENT)?;
+    content.theme = theme::Theme::load(THEME)?;
+    println!("Theme: {}", content.theme.summary);
 
     if out.exists() {
         fs::remove_dir_all(out)?;

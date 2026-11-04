@@ -7,6 +7,7 @@ use std::path::Path;
 use std::path::PathBuf;
 
 use crate::images::{self, Image};
+use crate::theme::Theme;
 
 const FALLBACK_RATIO: f32 = 1.25;
 
@@ -84,6 +85,8 @@ pub struct SiteContent {
     pub goatcounter_code: Option<String>,
     #[serde(default)]
     pub social_image: Option<PathBuf>,
+    #[serde(skip)]
+    pub theme: Theme,
 }
 
 impl SiteContent {

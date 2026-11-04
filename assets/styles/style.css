@@ -7,70 +7,12 @@
 }
 
 :root {
-  --bg: #f4f9f2;
-  --text: #12241a;
-  --muted: #54695c;
-  --accent: #1f6b45;
-  --ink: 18 60 38;
-
-  --blob-1: rgb(168 222 180 / 0.75); /* sage */
-  --blob-2: rgb(150 224 205 / 0.6);  /* mint */
-  --blob-3: rgb(228 238 160 / 0.55); /* spring light */
-  --blob-4: rgb(196 232 214 / 0.65); /* pale fern */
-
-  --panel: rgb(255 255 255 / 0.55);
-  --panel-solid: rgb(255 255 255 / 0.72);
-  --line: rgb(255 255 255 / 0.8);
-  --ring: 0 0 0 1px rgb(var(--ink) / 0.06);
-  --shadow: 0 1px 2px rgb(var(--ink) / 0.06), 0 12px 32px -10px rgb(var(--ink) / 0.22);
-  --shadow-lift: 0 2px 4px rgb(var(--ink) / 0.08), 0 28px 52px -14px rgb(var(--ink) / 0.34);
-  --pill: rgb(31 107 69 / 0.1);
-
-  --btn-bg: #173d2a;
-  --btn-fg: #ffffff;
-
-  --placeholder: rgb(200 230 212 / 0.55);
-  --edge: rgb(var(--ink) / 0.2);
-  --h1-a: #0f2b1d;
-  --h1-b: #1f8057;
-
   --measure: 38rem;
   --gutter: clamp(1.25rem, 4vw, 3.5rem);
   --radius: 1.5rem;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   --sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   color-scheme: light dark;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0a130f;
-    --text: #e8f2ec;
-    --muted: #98b2a3;
-    --accent: #7fdc9f;
-    --ink: 15 60 35;
-
-    --blob-1: rgb(34 110 72 / 0.5);
-    --blob-2: rgb(20 96 88 / 0.42);
-    --blob-3: rgb(110 130 40 / 0.2);
-    --blob-4: rgb(40 90 70 / 0.38);
-
-    --panel: rgb(255 255 255 / 0.055);
-    --panel-solid: rgb(255 255 255 / 0.09);
-    --line: rgb(255 255 255 / 0.1);
-    --ring: 0 0 0 1px rgb(255 255 255 / 0.03);
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -10px rgb(0 0 0 / 0.5);
-    --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 28px 52px -14px rgb(0 0 0 / 0.65);
-    --pill: rgb(127 220 159 / 0.14);
-
-    --btn-bg: #7fdc9f;
-    --btn-fg: #0a2417;
-
-    --placeholder: rgb(255 255 255 / 0.06);
-    --edge: rgb(255 255 255 / 0.16);
-    --h1-a: #eaf6ee;
-    --h1-b: #7fdc9f;
-  }
 }
 
 *,
@@ -624,9 +566,9 @@ main:has(.about) { max-width: 120rem; }
 
 #lightbox::backdrop {
   background:
-    radial-gradient(70% 60% at 20% 10%, rgb(var(--lb-1, 30 110 60) / 0.6), transparent 70%),
-    radial-gradient(60% 60% at 85% 95%, rgb(var(--lb-2, 20 100 70) / 0.5), transparent 70%),
-    rgb(var(--lb-base, 4 16 10) / 0.9);
+    radial-gradient(70% 60% at 20% 10%, rgb(var(--lb-1) / 0.6), transparent 70%),
+    radial-gradient(60% 60% at 85% 95%, rgb(var(--lb-2) / 0.5), transparent 70%),
+    rgb(var(--lb-base) / 0.9);
   -webkit-backdrop-filter: blur(24px);
   backdrop-filter: blur(24px);
   animation: fade-in 0.3s ease-out;

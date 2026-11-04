@@ -1,0 +1,187 @@
+# Single source of truth for every color on the site.
+
+peaks = [115, 206, 298, 385]
+
+[alpha.light]
+blobs = [0.75, 0.6, 0.55, 0.65]
+pill = 0.1
+placeholder = 0.55
+
+[alpha.dark]
+blobs = [0.5, 0.42, 0.2, 0.38]
+pill = 0.14
+placeholder = 0.06
+
+[spring.light]
+bg = "#f4f9f2"
+text = "#12241a"
+muted = "#54695c"
+accent = "#1f6b45"
+btn = "#173d2a"
+btn_fg = "#ffffff"
+h1_a = "#0f2b1d"
+h1_b = "#1f8057"
+ink = "#123c26"
+placeholder = "#c8e6d4"
+blobs = ["#a8deb4", "#96e0cd", "#e4eea0", "#c4e8d6"]
+
+[spring.light.hills]
+top = ["#a6e3b8", "#70cf96", "#4fbf87", "#33a875"]
+bot = ["#7dd1a1", "#40ad7a", "#2e9469", "#1a7857"]
+
+[spring.dark]
+bg = "#0a130f"
+text = "#e8f2ec"
+muted = "#98b2a3"
+accent = "#7fdc9f"
+btn = "#7fdc9f"
+btn_fg = "#0a2417"
+h1_a = "#eaf6ee"
+h1_b = "#7fdc9f"
+ink = "#0f3c23"
+placeholder = "#ffffff"
+blobs = ["#226e48", "#146058", "#6e8228", "#285a46"]
+
+[spring.dark.hills]
+top = ["#1d5a43", "#237a55", "#2fa06c", "#1f805c"]
+bot = ["#14412f", "#175c3f", "#1a6b45", "#0f543d"]
+
+[spring.lightbox]
+glow_1 = "#1e6e3c"
+glow_2 = "#146446"
+base = "#04100a"
+
+[summer.light]
+bg = "#f3f8ec"
+text = "#11261a"
+muted = "#566a54"
+accent = "#1e6f3a"
+btn = "#1a3d25"
+btn_fg = "#ffffff"
+h1_a = "#102b18"
+h1_b = "#2a8a3e"
+ink = "#123f20"
+placeholder = "#cfe8c8"
+blobs = ["#9fd9a0", "#8fdcc0", "#f0e890", "#bfe5b8"]
+
+[summer.light.hills]
+top = ["#a4dc98", "#78cb78", "#4fb862", "#2fa04c"]
+bot = ["#80cc80", "#46ae5a", "#2f9450", "#1c7a40"]
+
+[summer.dark]
+bg = "#0b140c"
+text = "#ebf3e6"
+muted = "#9ab49a"
+accent = "#8fe08a"
+btn = "#8fe08a"
+btn_fg = "#0b2410"
+h1_a = "#eef7e8"
+h1_b = "#8fe08a"
+ink = "#12401f"
+placeholder = "#ffffff"
+blobs = ["#2a7a3a", "#1a6a50", "#8c8a22", "#2f6a3a"]
+
+[summer.dark.hills]
+top = ["#235f35", "#2a7f43", "#38a355", "#2a8a45"]
+bot = ["#16401f", "#1c5b2d", "#217038", "#16602c"]
+
+[summer.lightbox]
+glow_1 = "#2b7a36"
+glow_2 = "#1a6a4a"
+base = "#050f08"
+
+[autumn.light]
+bg = "#faf3ea"
+text = "#2a1710"
+muted = "#7a5a48"
+accent = "#9a3a16"
+btn = "#4a2113"
+btn_fg = "#ffffff"
+h1_a = "#2c140c"
+h1_b = "#b5441c"
+ink = "#3c1c0e"
+placeholder = "#ecd5bf"
+blobs = ["#f0b98c", "#e59a7e", "#f0d98a", "#dcb89a"]
+
+[autumn.light.hills]
+top = ["#f4c898", "#f0aa69", "#ee8e50", "#de6c44"]
+bot = ["#e8b078", "#d6804e", "#be603a", "#a8422a"]
+
+[autumn.dark]
+bg = "#150d08"
+text = "#f3e6da"
+muted = "#b79f8e"
+accent = "#f0a15c"
+btn = "#f0a15c"
+btn_fg = "#2a1205"
+h1_a = "#fbeee2"
+h1_b = "#f0a15c"
+ink = "#3a1a0c"
+placeholder = "#ffffff"
+blobs = ["#7a3a1a", "#6a2418", "#8a6a1a", "#5a3820"]
+
+[autumn.dark.hills]
+top = ["#783c1e", "#aa5528", "#e16e34", "#be3e2a"]
+bot = ["#552a16", "#7d3c1e", "#964622", "#822c1e"]
+
+[autumn.lightbox]
+glow_1 = "#8a3c1a"
+glow_2 = "#7a2a20"
+base = "#140804"
+
+[winter.light]
+bg = "#f1f5f8"
+text = "#14202b"
+muted = "#566574"
+accent = "#2e5f8a"
+btn = "#1c3550"
+btn_fg = "#ffffff"
+h1_a = "#10202f"
+h1_b = "#2f6fa6"
+ink = "#12304c"
+placeholder = "#cddbe8"
+blobs = ["#b5cfe6", "#a8d8de", "#e0e6ee", "#c9d6e6"]
+
+[winter.light.hills]
+top = ["#c8dcef", "#a2c4e4", "#7fb0d8", "#5f98c6"]
+bot = ["#aac8e6", "#74a4d2", "#5486b8", "#386a9c"]
+
+[winter.dark]
+bg = "#0a1017"
+text = "#e8eff5"
+muted = "#9aacbb"
+accent = "#8fc0ec"
+btn = "#8fc0ec"
+btn_fg = "#0a1c2e"
+h1_a = "#eef5fb"
+h1_b = "#8fc0ec"
+ink = "#0f2a45"
+placeholder = "#ffffff"
+blobs = ["#1f4a75", "#17566a", "#4a5a7a", "#2a4a6a"]
+
+[winter.dark.hills]
+top = ["#225480", "#2d73aa", "#3c96d7", "#3278b9"]
+bot = ["#1a3a5e", "#225684", "#286496", "#1c4e7d"]
+
+[winter.lightbox]
+glow_1 = "#1e4a7a"
+glow_2 = "#1a5a78"
+base = "#040a12"
+
+[fixed.light]
+panel = "rgb(255 255 255 / 0.55)"
+panel-solid = "rgb(255 255 255 / 0.72)"
+line = "rgb(255 255 255 / 0.8)"
+ring = "0 0 0 1px rgb(var(--ink) / 0.06)"
+shadow = "0 1px 2px rgb(var(--ink) / 0.06), 0 12px 32px -10px rgb(var(--ink) / 0.22)"
+shadow-lift = "0 2px 4px rgb(var(--ink) / 0.08), 0 28px 52px -14px rgb(var(--ink) / 0.34)"
+edge = "rgb(var(--ink) / 0.2)"
+
+[fixed.dark]
+panel = "rgb(255 255 255 / 0.055)"
+panel-solid = "rgb(255 255 255 / 0.09)"
+line = "rgb(255 255 255 / 0.1)"
+ring = "0 0 0 1px rgb(255 255 255 / 0.03)"
+shadow = "0 1px 2px rgb(0 0 0 / 0.3), 0 12px 32px -10px rgb(0 0 0 / 0.5)"
+shadow-lift = "0 2px 4px rgb(0 0 0 / 0.35), 0 28px 52px -14px rgb(0 0 0 / 0.65)"
+edge = "rgb(255 255 255 / 0.16)"

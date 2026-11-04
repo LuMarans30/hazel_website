@@ -6,10 +6,6 @@ const NAV: [(&str, &str); 3] = [
     ("contact/", "Contact"),
 ];
 
-const SEASON_JS: &str = include_str!("../assets/scripts/season.js");
-
-const FAVICON: &str = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231f6b45'/%3E%3Cpath d='M0 20c5-6 8-6 13 0s8 6 13 0 4-3 6-2v14H0z' fill='%237fdc9f'/%3E%3C/svg%3E";
-
 pub fn root_of(page_path: &str) -> String {
     "../".repeat(page_path.split('/').filter(|s| !s.is_empty()).count())
 }
@@ -47,9 +43,9 @@ pub fn page(
                 meta charset="utf-8";
                 meta name="viewport" content="width=device-width, initial-scale=1";
                 meta name="description" content=(content.tagline);
-                meta name="theme-color" content="#f4f9f2" media="(prefers-color-scheme: light)";
-                meta name="theme-color" content="#0a130f" media="(prefers-color-scheme: dark)";
-                script { (PreEscaped(SEASON_JS)) }
+                meta name="theme-color" content=(content.theme.theme_color_light) media="(prefers-color-scheme: light)";
+                meta name="theme-color" content=(content.theme.theme_color_dark) media="(prefers-color-scheme: dark)";
+                style { (PreEscaped(&content.theme.css)) }
                 title { (full_title) }
 
                 @if let Some(url) = &canonical {
@@ -71,7 +67,7 @@ pub fn page(
                     meta name="twitter:card" content="summary";
                 }
 
-                link rel="icon" href=(FAVICON);
+                link rel="icon" href=(content.theme.favicon);
                 @if current.is_empty() {
                     link rel="preload" href=(format!("{root}{HERO_FONT}"))
                         as="font" type="font/woff2" crossorigin;
