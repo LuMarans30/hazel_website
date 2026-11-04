@@ -12,6 +12,17 @@
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)');
   const darkScheme = matchMedia('(prefers-color-scheme: dark)');
 
+  const FALLBACK = {
+    light: {
+      top: [0.65, 0.89, 0.72, 0.44, 0.81, 0.59, 0.31, 0.75, 0.53, 0.20, 0.66, 0.46],
+      bot: [0.49, 0.82, 0.63, 0.25, 0.68, 0.48, 0.18, 0.58, 0.41, 0.10, 0.47, 0.34],
+    },
+    dark: {
+      top: [0.114, 0.353, 0.263, 0.137, 0.478, 0.333, 0.184, 0.627, 0.424, 0.120, 0.500, 0.360],
+      bot: [0.078, 0.255, 0.184, 0.090, 0.360, 0.247, 0.102, 0.420, 0.270, 0.060, 0.330, 0.240],
+    },
+  };
+
   const TRAIL = 24;
   const WAKE_LIFE = 2.8;
 
@@ -35,6 +46,8 @@ uniform vec2  uSize;
 uniform float uScale;
 uniform float uTime;
 uniform float uDark;
+uniform vec3  uTop[4];
+uniform vec3  uBot[4];
 uniform vec4  uTrail[${TRAIL}];
 uniform vec4  uTrailMask[${TRAIL}];
 uniform vec4  uTrailAux[${TRAIL}];
@@ -51,11 +64,6 @@ const float SPEED[4]  = float[4](12.0, 18.0, 26.0, 34.0);
 const float OPAC_L[4] = float[4](0.28, 0.30, 0.33, 0.36);
 const float OPAC_D[4] = float[4](0.30, 0.32, 0.35, 0.38);
 const vec3 CAUSC = vec3(1.15, 1.0, 1.15);
-
-const vec3 TOP_L[4] = vec3[4](vec3(0.65, 0.89, 0.72), vec3(0.44, 0.81, 0.59), vec3(0.31, 0.75, 0.53), vec3(0.20, 0.66, 0.46));
-const vec3 BOT_L[4] = vec3[4](vec3(0.49, 0.82, 0.63), vec3(0.25, 0.68, 0.48), vec3(0.18, 0.58, 0.41), vec3(0.10, 0.47, 0.34));
-const vec3 TOP_D[4] = vec3[4](vec3(0.114, 0.353, 0.263), vec3(0.137, 0.478, 0.333), vec3(0.184, 0.627, 0.424), vec3(0.120, 0.500, 0.360));
-const vec3 BOT_D[4] = vec3[4](vec3(0.078, 0.255, 0.184), vec3(0.090, 0.360, 0.247), vec3(0.102, 0.420, 0.270), vec3(0.060, 0.330, 0.240));
 
 const vec3 LIGHT = normalize(vec3(-0.50, 0.55, 0.67));
 const vec3 HALFV = normalize(LIGHT + vec3(0.0, 0.0, 1.0));
@@ -277,11 +285,11 @@ void main() {
       float edge = exp(-max(d, 0.0) / 2.2) * (0.5 + 0.5 * lit);
       float glow = exp(-max(d, 0.0) / (14.0 * S)) * (0.4 + 0.6 * lit);
 
-      // Environment reflection (soft, green-tinted)
+      // Environment reflection (soft, tinted by the seasonal palette)
       float env  = pow(lightField(q * 0.7 + nxy * (200.0 * S) * disp + vec2(137.0, 61.0)), 2.0);
 
-      vec3  top   = mix(TOP_L[k], TOP_D[k], uDark);
-      vec3  bot   = mix(BOT_L[k], BOT_D[k], uDark);
+      vec3  top   = uTop[k];
+      vec3  bot   = uBot[k];
       float tint  = mix(top[c], bot[c], smoothstep(0.0, 100.0 * S, d));
 
       // Faint chromatic fringe along the rim only
@@ -336,7 +344,9 @@ void main() {
 
   let canvas = null;
   let gl = null;
-  let uSize, uScale, uTime, uDark, uTrail, uTrailMask, uWake, uCursor, uTrailAux;
+  let uSize, uScale, uTime, uDark, uTrail, uTrailMask, uWake, uCursor, uTrailAux, uTop, uBot;
+  let hillTop = new Float32Array(FALLBACK.light.top);
+  let hillBot = new Float32Array(FALLBACK.light.bot);
   let cssW = 0;
   let cssH = 0;
   let scale = 1;
@@ -450,9 +460,21 @@ void main() {
     uTrailAux = gl.getUniformLocation(prog, 'uTrailAux');
     uWake = gl.getUniformLocation(prog, 'uWake');
     uCursor = gl.getUniformLocation(prog, 'uCursor');
+    uTop = gl.getUniformLocation(prog, 'uTop');
+    uBot = gl.getUniformLocation(prog, 'uBot');
     gl.clearColor(0, 0, 0, 0);
     resize();
     return true;
+  }
+
+  function refreshPalette() {
+    let c = null;
+    try {
+      c = window.siteSeason && window.siteSeason.hills();
+    } catch (_) {}
+    if (!c) c = darkScheme.matches ? FALLBACK.dark : FALLBACK.light;
+    hillTop = new Float32Array(c.top);
+    hillBot = new Float32Array(c.bot);
   }
 
   function resize() {
@@ -474,6 +496,8 @@ void main() {
     gl.uniform1f(uScale, scale);
     gl.uniform1f(uTime, t);
     gl.uniform1f(uDark, darkScheme.matches ? 1 : 0);
+    gl.uniform3fv(uTop, hillTop);
+    gl.uniform3fv(uBot, hillBot);
     gl.uniform4fv(uTrail, trail);
     gl.uniform4fv(uTrailMask, trailMask);
     gl.uniform4fv(uTrailAux, trailAux);
@@ -606,7 +630,13 @@ void main() {
     addEventListener('pointermove', onPointerMove, { passive: true });
     addEventListener('pointerdown', onPointerDown, { passive: true });
     root.addEventListener('pointerleave', () => (isPointerActive = false));
-    darkScheme.addEventListener('change', draw);
+    refreshPalette();
+    const repaint = () => {
+      refreshPalette();
+      draw();
+    };
+    darkScheme.addEventListener('change', repaint);
+    addEventListener('seasonchange', repaint);
     document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
     addEventListener('pagehide', () => {
       try {

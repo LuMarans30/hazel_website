@@ -1,10 +1,12 @@
-use maud::{DOCTYPE, Markup, html};
+use maud::{DOCTYPE, Markup, PreEscaped, html};
 
 const NAV: [(&str, &str); 3] = [
     ("paintings/", "Paintings"),
     ("about/", "About"),
     ("contact/", "Contact"),
 ];
+
+const SEASON_JS: &str = include_str!("../assets/scripts/season.js");
 
 const FAVICON: &str = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%231f6b45'/%3E%3Cpath d='M0 20c5-6 8-6 13 0s8 6 13 0 4-3 6-2v14H0z' fill='%237fdc9f'/%3E%3C/svg%3E";
 
@@ -47,6 +49,7 @@ pub fn page(
                 meta name="description" content=(content.tagline);
                 meta name="theme-color" content="#f4f9f2" media="(prefers-color-scheme: light)";
                 meta name="theme-color" content="#0a130f" media="(prefers-color-scheme: dark)";
+                script { (PreEscaped(SEASON_JS)) }
                 title { (full_title) }
 
                 @if let Some(url) = &canonical {

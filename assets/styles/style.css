@@ -11,6 +11,7 @@
   --text: #12241a;
   --muted: #54695c;
   --accent: #1f6b45;
+  --ink: 18 60 38;
 
   --blob-1: rgb(168 222 180 / 0.75); /* sage */
   --blob-2: rgb(150 224 205 / 0.6);  /* mint */
@@ -20,16 +21,16 @@
   --panel: rgb(255 255 255 / 0.55);
   --panel-solid: rgb(255 255 255 / 0.72);
   --line: rgb(255 255 255 / 0.8);
-  --ring: 0 0 0 1px rgb(18 60 38 / 0.06);
-  --shadow: 0 1px 2px rgb(18 60 38 / 0.06), 0 12px 32px -10px rgb(18 60 38 / 0.22);
-  --shadow-lift: 0 2px 4px rgb(18 60 38 / 0.08), 0 28px 52px -14px rgb(18 60 38 / 0.34);
+  --ring: 0 0 0 1px rgb(var(--ink) / 0.06);
+  --shadow: 0 1px 2px rgb(var(--ink) / 0.06), 0 12px 32px -10px rgb(var(--ink) / 0.22);
+  --shadow-lift: 0 2px 4px rgb(var(--ink) / 0.08), 0 28px 52px -14px rgb(var(--ink) / 0.34);
   --pill: rgb(31 107 69 / 0.1);
 
   --btn-bg: #173d2a;
   --btn-fg: #ffffff;
 
   --placeholder: rgb(200 230 212 / 0.55);
-  --edge: rgb(18 60 38 / 0.2);
+  --edge: rgb(var(--ink) / 0.2);
   --h1-a: #0f2b1d;
   --h1-b: #1f8057;
 
@@ -47,6 +48,7 @@
     --text: #e8f2ec;
     --muted: #98b2a3;
     --accent: #7fdc9f;
+    --ink: 15 60 35;
 
     --blob-1: rgb(34 110 72 / 0.5);
     --blob-2: rgb(20 96 88 / 0.42);
@@ -268,71 +270,11 @@ a:hover { color: var(--text); }
   font-family: "Fleur De Leah", cursive;
   font-weight: 400;
   font-style: normal;
-}
-
-@property --n1 {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: #1a5a32;
-}
-
-@property --n2 {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: #2f9a52;
-}
-
-@property --n3 {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: #169a86;
-}
-
-@property --n4 {
-  syntax: "<color>";
-  inherits: false;
-  initial-value: #b5456f;
-}
-
-.intro h1 {
-  --n1: #1a5a32; --n2: #2f9a52; --n3: #169a86; --n4: #b5456f;
   background-image: linear-gradient(
     100deg,
-    var(--n1, #1a5a32) 0%,
-    var(--n2, #2f9a52) 34%,
-    var(--n3, #169a86) 66%,
-    var(--n4, #b5456f) 100%
+    color-mix(in srgb, var(--accent) 50%, var(--h1-a)),
+    var(--accent)
   );
-  animation: seasons 240s steps(30) infinite;
-}
-
-@keyframes seasons {
-  0%, 8% { --n1: #1a5a32; --n2: #2f9a52; --n3: #169a86; --n4: #b5456f; }
-  25%, 33% { --n1: #8c5a00; --n2: #5a8a12; --n3: #1f8a5a; --n4: #0f7d95; }
-  50%, 58% { --n1: #6e3410; --n2: #b5541a; --n3: #c2412e; --n4: #8a2f3f; }
-  75%, 83% { --n1: #17406a; --n2: #2a6bb0; --n3: #4a5fc0; --n4: #6a4fb0; }
-  100% { --n1: #1a5a32; --n2: #2f9a52; --n3: #169a86; --n4: #b5456f; }
-}
-
-@media (prefers-color-scheme: dark) {
-  .intro h1 {
-    --n1: #f3fbea; --n2: #a8e6a1; --n3: #6fd6b8; --n4: #f4bfd8;
-    background-image: linear-gradient(
-      100deg,
-      var(--n1, #f3fbea) 0%,
-      var(--n2, #a8e6a1) 34%,
-      var(--n3, #6fd6b8) 66%,
-      var(--n4, #f4bfd8) 100%
-    );
-  }
-
-  @keyframes seasons {
-    0%, 8% { --n1: #f3fbea; --n2: #a8e6a1; --n3: #6fd6b8; --n4: #f4bfd8; }
-    25%, 33% { --n1: #fff8d6; --n2: #ffd86b; --n3: #8fe39a; --n4: #4fd0d6; }
-    50%, 58% { --n1: #fff0d9; --n2: #ffc27a; --n3: #f08a4b; --n4: #e8625a; }
-    75%, 83% { --n1: #f4f9ff; --n2: #bfe0ff; --n3: #8fb4f0; --n4: #c9b8f0; }
-    100% { --n1: #f3fbea; --n2: #a8e6a1; --n3: #6fd6b8; --n4: #f4bfd8; }
-  }
 }
 
 .site-footer {
@@ -492,7 +434,7 @@ main:has(.about) { max-width: 120rem; }
   font-size: 0.975rem;
   font-weight: 500;
   text-decoration: none;
-  box-shadow: 0 8px 20px -6px rgb(15 60 35 / 0.45);
+  box-shadow: 0 8px 20px -6px rgb(var(--ink) / 0.45);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -500,7 +442,7 @@ main:has(.about) { max-width: 120rem; }
 .actions a:hover {
   color: var(--btn-fg);
   transform: translateY(-2px);
-  box-shadow: 0 14px 28px -8px rgb(15 60 35 / 0.5);
+  box-shadow: 0 14px 28px -8px rgb(var(--ink) / 0.5);
 }
 
 .actions a.ghost {
@@ -682,9 +624,9 @@ main:has(.about) { max-width: 120rem; }
 
 #lightbox::backdrop {
   background:
-    radial-gradient(70% 60% at 20% 10%, rgb(30 110 60 / 0.6), transparent 70%),
-    radial-gradient(60% 60% at 85% 95%, rgb(20 100 70 / 0.5), transparent 70%),
-    rgb(4 16 10 / 0.9);
+    radial-gradient(70% 60% at 20% 10%, rgb(var(--lb-1, 30 110 60) / 0.6), transparent 70%),
+    radial-gradient(60% 60% at 85% 95%, rgb(var(--lb-2, 20 100 70) / 0.5), transparent 70%),
+    rgb(var(--lb-base, 4 16 10) / 0.9);
   -webkit-backdrop-filter: blur(24px);
   backdrop-filter: blur(24px);
   animation: fade-in 0.3s ease-out;
@@ -797,6 +739,5 @@ main:has(.about) { max-width: 120rem; }
     background: none;
     -webkit-text-fill-color: currentColor;
     color: CanvasText;
-    animation: none;
   }
 }
