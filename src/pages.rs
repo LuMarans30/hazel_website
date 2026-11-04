@@ -1,4 +1,4 @@
-use maud::{Markup, html};
+use maud::{DOCTYPE, PreEscaped, Markup, html};
 
 use crate::content::{Painting, SiteContent};
 use crate::layout::{page, root_of, url};
@@ -9,6 +9,8 @@ const ICON_CLOSE: &str = "M6 6l12 12M18 6L6 18";
 
 const EAGER_COUNT: usize = 3;
 const HOME_COUNT: usize = 8;
+
+const CMS_URL: &str = "https://app.pagescms.org/lumarans30/hazel_website/";
 
 #[derive(Clone, Copy)]
 enum Place {
@@ -177,6 +179,29 @@ pub fn contact(content: &SiteContent) -> Markup {
             }
         },
     )
+}
+
+pub fn dashboard() -> Markup {
+    html! {
+        (DOCTYPE)
+        html lang="en" {
+            head {
+                meta charset="utf-8";
+                meta name="robots" content="noindex, nofollow";
+                meta http-equiv="refresh" content=(format!("0; url={CMS_URL}"));
+                title { "Redirecting to Pages CMS..." }
+                script {
+                    (PreEscaped(format!("window.location.replace('{CMS_URL}');")))
+                }
+            }
+            body {
+                p {
+                    "Redirecting to Pages CMS... "
+                    a href=(CMS_URL) { "Click here if not redirected." }
+                }
+            }
+        }
+    }
 }
 
 fn lightbox() -> Markup {

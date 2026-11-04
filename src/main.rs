@@ -46,6 +46,7 @@ fn main() -> io::Result<()> {
     write_page(out, "paintings/index.html", pages::gallery(&content))?;
     write_page(out, "about/index.html", pages::about(&content))?;
     write_page(out, "contact/index.html", pages::contact(&content))?;
+    write_page(out, "dashboard/index.html", pages::dashboard())?;
 
     println!("Site successfully generated in ./{OUT}");
     Ok(())
