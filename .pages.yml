@@ -1,0 +1,102 @@
+media:
+  input: assets/images
+  output: ""
+  rename: safe
+  categories: [image]
+
+settings:
+  content:
+    merge: true
+  commit:
+    templates:
+      update: "chore: update site content via Pages CMS"
+
+content:
+  - name: portfolio
+    label: Portfolio Content
+    type: file
+    path: paintings.toml
+    format: toml
+    operations:
+      delete: false
+      rename: false
+    fields:
+      - name: artist_name
+        label: Artist Name
+        type: string
+        required: true
+      - name: tagline
+        label: Tagline
+        type: string
+        required: true
+      - name: site_url
+        label: Site URL
+        type: string
+        readonly: true
+      - name: goatcounter_code
+        label: GoatCounter Code
+        type: string
+        readonly: true
+      - name: email
+        label: Contact Email
+        type: string
+        required: true
+      - name: portrait
+        label: Portrait Image
+        type: image
+        required: true
+        options:
+          extensions: [jpg, jpeg, webp]
+      - name: portrait_alt
+        label: Portrait Alt Text
+        type: string
+      - name: social_image
+        label: Social Share Image (OG)
+        type: image
+        description: "Must match portrait or one of the paintings."
+        options:
+          extensions: [jpg, jpeg, webp]
+      - name: bio
+        label: Biography Paragraphs
+        type: text
+        list: true
+        required: true
+        description: "Add each paragraph as a separate item."
+      - name: paintings
+        label: Paintings Gallery
+        type: object
+        list:
+          min: 1
+          collapsible:
+            collapsed: true
+            summary: "{fields.title}"
+        fields:
+          - name: file
+            label: Painting Image
+            type: image
+            required: true
+            options:
+              extensions: [jpg, jpeg, webp]
+          - name: title
+            label: Title
+            type: string
+            required: true
+          - name: is_featured
+            label: Featured on Homepage?
+            type: boolean
+            default: false
+          - name: year
+            label: Year
+            type: number
+          - name: medium
+            label: Medium
+            type: string
+            description: "e.g. Oil on canvas"
+          - name: size
+            label: Dimensions
+            type: string
+            description: "e.g. 60 × 80 cm"
+          - name: alt
+            label: Alt Text
+            type: string
+            description: "Optional. Defaults to painting title."
