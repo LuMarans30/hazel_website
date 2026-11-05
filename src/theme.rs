@@ -176,50 +176,6 @@ impl ThemeFile {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
-enum Pick {
-    Day(i64),
-    Season(usize),
-}
-
-impl Pick {
-    fn from_env() -> io::Result<Pick> {
-        if let Ok(s) = std::env::var("SITE_SEASON") {
-            let s = s.trim().to_lowercase();
-            return NAMES
-                .iter()
-                .position(|n| *n == s)
-                .map(Pick::Season)
-                .ok_or_else(|| err(format!("SITE_SEASON must be one of {NAMES:?}, got '{s}'")));
-        }
-        if let Ok(s) = std::env::var("SITE_DATE") {
-            let (y, m, d) = parse_date(s.trim())?;
-            return Ok(Pick::Day(ordinal(y, m, d)));
-        }
-        let secs = SystemTime::now()
-            .duration_since(UNIX_EPOCH)
-            .map_err(err)?
-            .as_secs();
-        let (y, m, d) = civil_from_days((secs / 86_400) as i64);
-        Ok(Pick::Day(ordinal(y, m, d)))
-    }
-}
-
-fn parse_date(s: &str) -> io::Result<(i64, u32, u32)> {
-    let bad = || err(format!("SITE_DATE must be YYYY-MM-DD, got '{s}'"));
-    let mut it = s.split('-');
-    let y: i64 = it.next().and_then(|v| v.parse().ok()).ok_or_else(bad)?;
-    let m: u32 = it.next().and_then(|v| v.parse().ok()).ok_or_else(bad)?;
-    let d: u32 = it.next().and_then(|v| v.parse().ok()).ok_or_else(bad)?;
-    if it.next().is_some() || !(1..=12).contains(&m) || !(1..=31).contains(&d) {
-        return Err(bad());
-    }
-    if civil_from_days(days_from_civil(y, m, d)) != (y, m, d) {
-        return Err(bad());
-    }
-    Ok((y, m, d))
-}
-
 fn days_from_civil(y: i64, m: u32, d: u32) -> i64 {
     let y = if m <= 2 { y - 1 } else { y };
     let era = y.div_euclid(400);
@@ -241,10 +197,6 @@ fn civil_from_days(z: i64) -> (i64, u32, u32) {
     let d = (doy - (153 * mp + 2) / 5 + 1) as u32;
     let m = (if mp < 10 { mp + 3 } else { mp - 9 }) as u32;
     (if m <= 2 { y + 1 } else { y }, m, d)
-}
-
-fn ordinal(y: i64, m: u32, d: u32) -> i64 {
-    days_from_civil(y, m, d) - days_from_civil(y, 1, 1) + 1
 }
 
 fn blend_for_day(day: i64, peaks: [u32; 4]) -> (usize, usize, f64) {
@@ -315,18 +267,18 @@ impl Theme {
         let path = path.as_ref();
         let text = fs::read_to_string(path)
             .map_err(|e| err(format!("Failed to read theme at '{}': {e}", path.display())))?;
-        Self::resolve(&text, Pick::from_env()?)
+        Self::resolve(&text)
             .map_err(|e| err(format!("{} (in '{}')", e, path.display())))
     }
 
-    fn resolve(toml_text: &str, pick: Pick) -> io::Result<Self> {
+    fn resolve(toml_text: &str) -> io::Result<Self> {
         let file: ThemeFile =
             toml::from_str(toml_text).map_err(|e| err(format!("Failed to parse theme: {e}")))?;
 
-        let day = match pick {
-            Pick::Day(n) => n,
-            Pick::Season(i) => i64::from(file.peaks[i]),
-        };
+        let days = (SystemTime::now().duration_since(UNIX_EPOCH).map_err(err)?.as_secs() / 86_400) as i64;
+        let (y, _, _) = civil_from_days(days);
+        let day = days - days_from_civil(y, 1, 1) + 1;
+
         let (from, to, w) = blend_for_day(day, file.peaks);
         let (a, b) = (file.season(from), file.season(to));
 
@@ -374,15 +326,6 @@ mod tests {
         // 1900 is divisible by 4 but not a leap year; 2000 is.
         assert_eq!(days_from_civil(1900, 3, 1) - days_from_civil(1900, 2, 28), 1);
         assert_eq!(days_from_civil(2000, 3, 1) - days_from_civil(2000, 2, 28), 2);
-    }
-
-    #[test]
-    fn parse_date_rejects_impossible_dates() {
-        assert!(matches!(parse_date("2024-02-29"), Ok((2024, 2, 29))));
-        assert!(parse_date("2023-02-29").is_err()); // not a leap year
-        assert!(parse_date("2024-02-30").is_err());
-        assert!(parse_date("2024-13-01").is_err());
-        assert!(parse_date("2024-02").is_err());
     }
 
     #[test]
