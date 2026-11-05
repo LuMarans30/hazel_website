@@ -1,0 +1,36 @@
+# Ambient leaves background
+
+# Global multiplier on every layer's opacity. 0 hides the leaves.
+opacity = 1.0
+
+[render]
+max_dpr = 1.25     # leaves are soft, so full retina resolution is wasted
+max_fps = 60       # 0 = uncapped
+
+[wind]
+direction = [1.0, 0.16]   # screen space, y points down
+speed = 34.0              # px/s
+
+[[layers]]
+cell = 120.0    # lattice spacing in px
+size = 16.0     # leaf length in px
+density = 0.45  # chance a cell holds a leaf
+speed = 0.55    # wind multiplier
+blur = 1.2      # edge softness in px (DoF)
+opacity = 0.28  # layer opacity
+
+[[layers]]
+cell = 190.0
+size = 28.0
+density = 0.50
+speed = 1.00
+blur = 0.6
+opacity = 0.40
+
+[[layers]]
+cell = 330.0
+size = 46.0
+density = 0.55
+speed = 1.65
+blur = 1.8
+opacity = 0.32

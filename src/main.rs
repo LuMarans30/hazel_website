@@ -3,6 +3,7 @@ mod images;
 mod layout;
 mod pages;
 mod theme;
+mod leaves;
 
 use std::fs;
 use std::io;
@@ -21,7 +22,7 @@ const THEME: &str = "theme.toml";
 fn main() -> io::Result<()> {
     let out = Path::new(OUT);
     let static_dir = Path::new(STATIC);
-    
+
     let theme = theme::Theme::load(THEME)?;
     let mut content = content::SiteContent::load(CONTENT)?;
     content.theme = theme;
@@ -47,6 +48,7 @@ fn main() -> io::Result<()> {
 
     let css = build_css(&css_source)?;
     fs::write(out.join("style.css"), css)?;
+    fs::write(out.join("leaves.js"), leaves::build()?)?;
 
     write_page(out, "index.html", pages::home(&content))?;
     write_page(out, "paintings/index.html", pages::gallery(&content))?;
