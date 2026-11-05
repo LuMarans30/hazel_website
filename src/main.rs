@@ -21,8 +21,10 @@ const THEME: &str = "theme.toml";
 fn main() -> io::Result<()> {
     let out = Path::new(OUT);
     let static_dir = Path::new(STATIC);
+    
+    let theme = theme::Theme::load(THEME)?;
     let mut content = content::SiteContent::load(CONTENT)?;
-    content.theme = theme::Theme::load(THEME)?;
+    content.theme = theme;
     println!("Theme: {}", content.theme.summary);
 
     if out.exists() {
