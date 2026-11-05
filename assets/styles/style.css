@@ -40,14 +40,13 @@ html::before {
   animation: drift 50s ease-in-out infinite alternate;
 }
 
-.hills {
+.leaves {
   position: fixed;
-  left: 0;
-  bottom: 0;
+  inset: 0;
   z-index: -1;
   display: block;
   width: 100%;
-  height: clamp(180px, 30vh, 340px);
+  height: 100%;
   pointer-events: none;
 }
 

@@ -61,14 +61,14 @@ impl Rgb {
 
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
-struct Hills {
+struct Leaves {
     top: [Rgb; 4],
     bot: [Rgb; 4],
 }
 
-impl Hills {
-    fn lerp(&self, o: &Hills, w: f64) -> Hills {
-        Hills {
+impl Leaves {
+    fn lerp(&self, o: &Leaves, w: f64) -> Leaves {
+        Leaves {
             top: std::array::from_fn(|i| self.top[i].lerp(o.top[i], w)),
             bot: std::array::from_fn(|i| self.bot[i].lerp(o.bot[i], w)),
         }
@@ -89,7 +89,7 @@ struct Scheme {
     ink: Rgb,
     placeholder: Rgb,
     blobs: [Rgb; 4],
-    hills: Hills,
+    leaves: Leaves,
 }
 
 impl Scheme {
@@ -107,7 +107,7 @@ impl Scheme {
             ink: l(self.ink, o.ink),
             placeholder: l(self.placeholder, o.placeholder),
             blobs: std::array::from_fn(|i| l(self.blobs[i], o.blobs[i])),
-            hills: self.hills.lerp(&o.hills, w),
+            leaves: self.leaves.lerp(&o.leaves, w),
         }
     }
 }
@@ -294,9 +294,9 @@ fn scheme_vars(out: &mut String, s: &Scheme, alpha: &Alpha, fixed: &BTreeMap<Str
     for (i, (c, a)) in s.blobs.iter().zip(alpha.blobs).enumerate() {
         decl(out, &format!("blob-{}", i + 1), c.rgba(a));
     }
-    for (i, (top, bot)) in s.hills.top.iter().zip(&s.hills.bot).enumerate() {
-        decl(out, &format!("hill-top-{}", i + 1), top.hex());
-        decl(out, &format!("hill-bot-{}", i + 1), bot.hex());
+    for (i, (top, bot)) in s.leaves.top.iter().zip(&s.leaves.bot).enumerate() {
+        decl(out, &format!("leaf-top-{}", i + 1), top.hex());
+        decl(out, &format!("leaf-bot-{}", i + 1), bot.hex());
     }
 }
 

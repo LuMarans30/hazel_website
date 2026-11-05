@@ -25,7 +25,7 @@ ink = "#123c26"
 placeholder = "#c8e6d4"
 blobs = ["#a8deb4", "#96e0cd", "#e4eea0", "#c4e8d6"]
 
-[spring.light.hills]
+[spring.light.leaves]
 top = ["#a6e3b8", "#70cf96", "#4fbf87", "#33a875"]
 bot = ["#7dd1a1", "#40ad7a", "#2e9469", "#1a7857"]
 
@@ -42,7 +42,7 @@ ink = "#0f3c23"
 placeholder = "#ffffff"
 blobs = ["#226e48", "#146058", "#6e8228", "#285a46"]
 
-[spring.dark.hills]
+[spring.dark.leaves]
 top = ["#1d5a43", "#237a55", "#2fa06c", "#1f805c"]
 bot = ["#14412f", "#175c3f", "#1a6b45", "#0f543d"]
 
@@ -64,7 +64,7 @@ ink = "#123f20"
 placeholder = "#cfe8c8"
 blobs = ["#9fd9a0", "#8fdcc0", "#f0e890", "#bfe5b8"]
 
-[summer.light.hills]
+[summer.light.leaves]
 top = ["#a4dc98", "#78cb78", "#4fb862", "#2fa04c"]
 bot = ["#80cc80", "#46ae5a", "#2f9450", "#1c7a40"]
 
@@ -81,7 +81,7 @@ ink = "#12401f"
 placeholder = "#ffffff"
 blobs = ["#2a7a3a", "#1a6a50", "#8c8a22", "#2f6a3a"]
 
-[summer.dark.hills]
+[summer.dark.leaves]
 top = ["#235f35", "#2a7f43", "#38a355", "#2a8a45"]
 bot = ["#16401f", "#1c5b2d", "#217038", "#16602c"]
 
@@ -103,7 +103,7 @@ ink = "#3c1c0e"
 placeholder = "#ecd5bf"
 blobs = ["#f0b98c", "#e59a7e", "#f0d98a", "#dcb89a"]
 
-[autumn.light.hills]
+[autumn.light.leaves]
 top = ["#f4c898", "#f0aa69", "#ee8e50", "#de6c44"]
 bot = ["#e8b078", "#d6804e", "#be603a", "#a8422a"]
 
@@ -120,7 +120,7 @@ ink = "#3a1a0c"
 placeholder = "#ffffff"
 blobs = ["#7a3a1a", "#6a2418", "#8a6a1a", "#5a3820"]
 
-[autumn.dark.hills]
+[autumn.dark.leaves]
 top = ["#783c1e", "#aa5528", "#e16e34", "#be3e2a"]
 bot = ["#552a16", "#7d3c1e", "#964622", "#822c1e"]
 
@@ -142,7 +142,7 @@ ink = "#12304c"
 placeholder = "#cddbe8"
 blobs = ["#b5cfe6", "#a8d8de", "#e0e6ee", "#c9d6e6"]
 
-[winter.light.hills]
+[winter.light.leaves]
 top = ["#c8dcef", "#a2c4e4", "#7fb0d8", "#5f98c6"]
 bot = ["#aac8e6", "#74a4d2", "#5486b8", "#386a9c"]
 
@@ -159,7 +159,7 @@ ink = "#0f2a45"
 placeholder = "#ffffff"
 blobs = ["#1f4a75", "#17566a", "#4a5a7a", "#2a4a6a"]
 
-[winter.dark.hills]
+[winter.dark.leaves]
 top = ["#225480", "#2d73aa", "#3c96d7", "#3278b9"]
 bot = ["#1a3a5e", "#225684", "#286496", "#1c4e7d"]
 
