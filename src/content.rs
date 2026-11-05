@@ -226,3 +226,16 @@ fn slugify(s: &str) -> String {
     }
     out.trim_end_matches('-').to_string()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::slugify;
+
+    #[test]
+    fn slugify_folds_accents_and_trims_junk() {
+        assert_eq!(slugify("Untitled 14"), "untitled-14");
+        assert_eq!(slugify("Été à Paris"), "ete-a-paris");
+        assert_eq!(slugify("Hello!"), "hello");
+        assert_eq!(slugify("!!!"), ""); // caller falls back to painting-N
+    }
+}

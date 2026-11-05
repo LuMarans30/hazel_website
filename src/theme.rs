@@ -357,3 +357,69 @@ impl Theme {
         })
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const PEAKS: [u32; 4] = [115, 206, 298, 385];
+
+    #[test]
+    fn calendar_round_trips_across_both_century_rules() {
+        assert_eq!(days_from_civil(1970, 1, 1), 0);
+        for z in days_from_civil(1900, 1, 1)..days_from_civil(2101, 1, 1) {
+            let (y, m, d) = civil_from_days(z);
+            assert_eq!(days_from_civil(y, m, d), z, "round-trip failed at {y}-{m}-{d}");
+        }
+        // 1900 is divisible by 4 but not a leap year; 2000 is.
+        assert_eq!(days_from_civil(1900, 3, 1) - days_from_civil(1900, 2, 28), 1);
+        assert_eq!(days_from_civil(2000, 3, 1) - days_from_civil(2000, 2, 28), 2);
+    }
+
+    #[test]
+    fn parse_date_rejects_impossible_dates() {
+        assert!(matches!(parse_date("2024-02-29"), Ok((2024, 2, 29))));
+        assert!(parse_date("2023-02-29").is_err()); // not a leap year
+        assert!(parse_date("2024-02-30").is_err());
+        assert!(parse_date("2024-13-01").is_err());
+        assert!(parse_date("2024-02").is_err());
+    }
+
+    #[test]
+    fn peak_day_is_pure_season() {
+        assert_eq!(blend_for_day(115, PEAKS), (0, 1, 0.0));
+    }
+
+    #[test]
+    fn segment_midpoint_is_half_blend() {
+        let peaks = [100, 200, 300, 400];
+        assert_eq!(blend_for_day(150, peaks), (0, 1, 0.5));
+        assert_eq!(blend_for_day(350, peaks), (2, 3, 0.5));
+    }
+
+    #[test]
+    fn new_year_wraps_into_autumn_to_winter() {
+        let (from, to, w) = blend_for_day(1, PEAKS);
+        assert_eq!((from, to), (2, 3));
+        // Smoothstepped, not linear
+        assert!((0.8..0.9).contains(&w), "w = {w}");
+        // Leap-year Dec 31 (ordinal 366) folds onto Jan 1.
+        assert_eq!(blend_for_day(366, PEAKS), blend_for_day(1, PEAKS));
+    }
+
+    #[test]
+    fn day_before_first_peak_wraps_to_spring() {
+        let (from, to, w) = blend_for_day(114, PEAKS);
+        assert_eq!((from, to), (3, 0)); // winter -> spring
+        assert!(w > 0.98, "w = {w}"); // one day short of the spring peak
+    }
+
+    #[test]
+    fn every_day_yields_bounded_weight() {
+        for day in 1..=365 {
+            let (from, to, w) = blend_for_day(day, PEAKS);
+            assert!((0.0..=1.0).contains(&w), "day {day}: w = {w}");
+            assert_eq!(to, (from + 1) % 4);
+        }
+    }
+}
