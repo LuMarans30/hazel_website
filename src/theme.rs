@@ -8,6 +8,13 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const NAMES: [&str; 4] = ["spring", "summer", "autumn", "winter"];
 
+const SCRIPT_TEMPLATE: &str = "assets/scripts/theme.js";
+const SPEC_MARKER: &str = "__SPEC__";
+
+const FAVICON: &str = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E\
+     %3Crect width='32' height='32' rx='9' fill='%23{light}'/%3E\
+     %3Cpath d='M0 20c5-6 8-6 13 0s8 6 13 0 4-3 6-2v14H0z' fill='%23{dark}'/%3E%3C/svg%3E";
+
 fn err(msg: impl Display) -> io::Error {
     io::Error::other(msg.to_string())
 }
@@ -53,10 +60,6 @@ impl Rgb {
         let [r, g, b] = self.channels();
         format!("{r} {g} {b}")
     }
-
-    fn rgba(self, alpha: f64) -> String {
-        format!("rgb({} / {alpha})", self.triplet())
-    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -64,15 +67,6 @@ impl Rgb {
 struct Leaves {
     top: [Rgb; 4],
     bot: [Rgb; 4],
-}
-
-impl Leaves {
-    fn lerp(&self, o: &Leaves, w: f64) -> Leaves {
-        Leaves {
-            top: std::array::from_fn(|i| self.top[i].lerp(o.top[i], w)),
-            bot: std::array::from_fn(|i| self.bot[i].lerp(o.bot[i], w)),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -92,42 +86,12 @@ struct Scheme {
     leaves: Leaves,
 }
 
-impl Scheme {
-    fn lerp(&self, o: &Scheme, w: f64) -> Scheme {
-        let l = |a: Rgb, b: Rgb| a.lerp(b, w);
-        Scheme {
-            bg: l(self.bg, o.bg),
-            text: l(self.text, o.text),
-            muted: l(self.muted, o.muted),
-            accent: l(self.accent, o.accent),
-            btn: l(self.btn, o.btn),
-            btn_fg: l(self.btn_fg, o.btn_fg),
-            h1_a: l(self.h1_a, o.h1_a),
-            h1_b: l(self.h1_b, o.h1_b),
-            ink: l(self.ink, o.ink),
-            placeholder: l(self.placeholder, o.placeholder),
-            blobs: std::array::from_fn(|i| l(self.blobs[i], o.blobs[i])),
-            leaves: self.leaves.lerp(&o.leaves, w),
-        }
-    }
-}
-
 #[derive(Debug, Clone, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Lightbox {
     glow_1: Rgb,
     glow_2: Rgb,
     base: Rgb,
-}
-
-impl Lightbox {
-    fn lerp(&self, o: &Lightbox, w: f64) -> Lightbox {
-        Lightbox {
-            glow_1: self.glow_1.lerp(o.glow_1, w),
-            glow_2: self.glow_2.lerp(o.glow_2, w),
-            base: self.base.lerp(o.base, w),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -218,48 +182,199 @@ fn blend_for_day(day: i64, peaks: [u32; 4]) -> (usize, usize, f64) {
 #[derive(Debug, Clone, Default)]
 pub struct Theme {
     pub css: String,
+    pub script: String,
     pub theme_color_light: String,
     pub theme_color_dark: String,
     pub favicon: String,
     pub summary: String,
 }
 
-fn decl(out: &mut String, name: &str, value: impl Display) {
-    let _ = write!(out, "--{name}:{value};");
+#[derive(Debug, Clone, PartialEq)]
+enum Fmt {
+    Hex,
+    Triplet,
+    Alpha(String),
 }
 
-fn scheme_vars(out: &mut String, s: &Scheme, alpha: &Alpha, fixed: &BTreeMap<String, String>) {
-    for (name, value) in fixed {
-        decl(out, name, value);
+impl Fmt {
+    fn apply(&self, c: Rgb) -> String {
+        match self {
+            Fmt::Hex => c.hex(),
+            Fmt::Triplet => c.triplet(),
+            Fmt::Alpha(a) => format!("rgb({} / {a})", c.triplet()),
+        }
     }
-    decl(out, "bg", s.bg.hex());
-    decl(out, "text", s.text.hex());
-    decl(out, "muted", s.muted.hex());
-    decl(out, "accent", s.accent.hex());
-    decl(out, "btn-bg", s.btn.hex());
-    decl(out, "btn-fg", s.btn_fg.hex());
-    decl(out, "h1-a", s.h1_a.hex());
-    decl(out, "h1-b", s.h1_b.hex());
-    decl(out, "ink", s.ink.triplet());
-    decl(out, "pill", s.accent.rgba(alpha.pill));
-    decl(out, "placeholder", s.placeholder.rgba(alpha.placeholder));
+}
+
+#[derive(Debug, Clone, PartialEq)]
+enum Decl {
+    Lit(String, String),
+    Color(String, usize, Fmt),
+}
+
+#[derive(Debug, Default)]
+struct Vars {
+    decls: Vec<Decl>,
+    colors: Vec<Rgb>,
+}
+
+impl Vars {
+    fn lit(&mut self, name: &str, value: &str) {
+        self.decls.push(Decl::Lit(name.into(), value.into()));
+    }
+
+    fn color(&mut self, name: &str, c: Rgb, fmt: Fmt) {
+        self.decls.push(Decl::Color(name.into(), self.colors.len(), fmt));
+        self.colors.push(c);
+    }
+}
+
+fn scheme_vars(s: &Scheme, alpha: &Alpha, fixed: &BTreeMap<String, String>) -> Vars {
+    let mut v = Vars::default();
+    for (name, value) in fixed {
+        v.lit(name, value);
+    }
+    v.color("bg", s.bg, Fmt::Hex);
+    v.color("text", s.text, Fmt::Hex);
+    v.color("muted", s.muted, Fmt::Hex);
+    v.color("accent", s.accent, Fmt::Hex);
+    v.color("btn-bg", s.btn, Fmt::Hex);
+    v.color("btn-fg", s.btn_fg, Fmt::Hex);
+    v.color("h1-a", s.h1_a, Fmt::Hex);
+    v.color("h1-b", s.h1_b, Fmt::Hex);
+    v.color("ink", s.ink, Fmt::Triplet);
+    v.color("pill", s.accent, Fmt::Alpha(alpha.pill.to_string()));
+    v.color("placeholder", s.placeholder, Fmt::Alpha(alpha.placeholder.to_string()));
     for (i, (c, a)) in s.blobs.iter().zip(alpha.blobs).enumerate() {
-        decl(out, &format!("blob-{}", i + 1), c.rgba(a));
+        v.color(&format!("blob-{}", i + 1), *c, Fmt::Alpha(a.to_string()));
     }
     for (i, (top, bot)) in s.leaves.top.iter().zip(&s.leaves.bot).enumerate() {
-        decl(out, &format!("leaf-top-{}", i + 1), top.hex());
-        decl(out, &format!("leaf-bot-{}", i + 1), bot.hex());
+        v.color(&format!("leaf-top-{}", i + 1), *top, Fmt::Hex);
+        v.color(&format!("leaf-bot-{}", i + 1), *bot, Fmt::Hex);
     }
+    v
+}
+
+fn light_vars(file: &ThemeFile, s: &Season) -> Vars {
+    let mut v = scheme_vars(&s.light, &file.alpha.light, &file.fixed.light);
+    v.color("lb-1", s.lightbox.glow_1, Fmt::Triplet);
+    v.color("lb-2", s.lightbox.glow_2, Fmt::Triplet);
+    v.color("lb-base", s.lightbox.base, Fmt::Triplet);
+    v
+}
+
+fn dark_vars(file: &ThemeFile, s: &Season) -> Vars {
+    scheme_vars(&s.dark, &file.alpha.dark, &file.fixed.dark)
+}
+
+struct Palette {
+    decls: Vec<Decl>,
+    seasons: Vec<Vec<Rgb>>,
+}
+
+impl Palette {
+    fn new(file: &ThemeFile, vars: impl Fn(&ThemeFile, &Season) -> Vars) -> Self {
+        let all: Vec<Vars> = (0..4).map(|i| vars(file, file.season(i))).collect();
+        debug_assert!(all.iter().all(|v| v.decls == all[0].decls));
+        Palette {
+            decls: all[0].decls.clone(),
+            seasons: all.iter().map(|v| v.colors.clone()).collect(),
+        }
+    }
+
+    fn blend(&self, from: usize, to: usize, w: f64) -> Vec<Rgb> {
+        self.seasons[from]
+            .iter()
+            .zip(&self.seasons[to])
+            .map(|(a, b)| a.lerp(*b, w))
+            .collect()
+    }
+
+    fn css(&self, colors: &[Rgb]) -> String {
+        let mut out = String::new();
+        for d in &self.decls {
+            let _ = match d {
+                Decl::Lit(name, value) => write!(out, "--{name}:{value};"),
+                Decl::Color(name, slot, fmt) => write!(out, "--{name}:{};", fmt.apply(colors[*slot])),
+            };
+        }
+        out
+    }
+
+    fn get(&self, name: &str, colors: &[Rgb]) -> io::Result<Rgb> {
+        self.decls
+            .iter()
+            .find_map(|d| match d {
+                Decl::Color(n, slot, _) if n == name => Some(colors[*slot]),
+                _ => None,
+            })
+            .ok_or_else(|| err(format!("theme has no color variable '--{name}'")))
+    }
+
+    fn json(&self) -> String {
+        let mut s = String::from("{\"decls\":[");
+        for (i, d) in self.decls.iter().enumerate() {
+            if i > 0 {
+                s.push(',');
+            }
+            let _ = match d {
+                Decl::Lit(name, value) => write!(s, "[{},{}]", json_str(name), json_str(value)),
+                Decl::Color(name, slot, Fmt::Hex) => write!(s, "[{},{slot},\"h\"]", json_str(name)),
+                Decl::Color(name, slot, Fmt::Triplet) => write!(s, "[{},{slot},\"t\"]", json_str(name)),
+                Decl::Color(name, slot, Fmt::Alpha(a)) => {
+                    write!(s, "[{},{slot},\"a\",{}]", json_str(name), json_str(a))
+                }
+            };
+        }
+        s.push_str("],\"seasons\":[");
+        for (i, colors) in self.seasons.iter().enumerate() {
+            if i > 0 {
+                s.push(',');
+            }
+            let packed: String = colors.iter().map(|c| c.digits()).collect();
+            let _ = write!(s, "\"{packed}\"");
+        }
+        s.push_str("]}");
+        s
+    }
+}
+
+fn json_str(s: &str) -> String {
+    let mut out = String::with_capacity(s.len() + 2);
+    out.push('"');
+    for c in s.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            '<' => out.push_str("\\u003c"),
+            c if (c as u32) < 0x20 => {
+                let _ = write!(out, "\\u{:04x}", c as u32);
+            }
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
 }
 
 fn favicon(light_accent: Rgb, dark_accent: Rgb) -> String {
-    format!(
-        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E\
-         %3Crect width='32' height='32' rx='9' fill='%23{}'/%3E\
-         %3Cpath d='M0 20c5-6 8-6 13 0s8 6 13 0 4-3 6-2v14H0z' fill='%23{}'/%3E%3C/svg%3E",
-        light_accent.digits(),
-        dark_accent.digits(),
-    )
+    FAVICON
+        .replace("{light}", &light_accent.digits())
+        .replace("{dark}", &dark_accent.digits())
+}
+
+fn fill_script(template: &str, spec: &str) -> io::Result<String> {
+    let n = template.matches(SPEC_MARKER).count();
+    if n != 1 {
+        return Err(err(format!("{SCRIPT_TEMPLATE}: expected exactly one {SPEC_MARKER}, found {n}")));
+    }
+    Ok(template.replacen(SPEC_MARKER, spec, 1))
+}
+
+fn today() -> io::Result<i64> {
+    let days = (SystemTime::now().duration_since(UNIX_EPOCH).map_err(err)?.as_secs() / 86_400) as i64;
+    let (y, _, _) = civil_from_days(days);
+    Ok(days - days_from_civil(y, 1, 1) + 1)
 }
 
 impl Theme {
@@ -267,39 +382,43 @@ impl Theme {
         let path = path.as_ref();
         let text = fs::read_to_string(path)
             .map_err(|e| err(format!("Failed to read theme at '{}': {e}", path.display())))?;
-        Self::resolve(&text)
+        let template = fs::read_to_string(SCRIPT_TEMPLATE)
+            .map_err(|e| err(format!("Failed to read '{SCRIPT_TEMPLATE}': {e}")))?;
+        Self::resolve(&text, &template, today()?)
             .map_err(|e| err(format!("{} (in '{}')", e, path.display())))
     }
 
-    fn resolve(toml_text: &str) -> io::Result<Self> {
+    fn resolve(toml_text: &str, template: &str, day: i64) -> io::Result<Self> {
         let file: ThemeFile =
             toml::from_str(toml_text).map_err(|e| err(format!("Failed to parse theme: {e}")))?;
 
-        let days = (SystemTime::now().duration_since(UNIX_EPOCH).map_err(err)?.as_secs() / 86_400) as i64;
-        let (y, _, _) = civil_from_days(days);
-        let day = days - days_from_civil(y, 1, 1) + 1;
+        let light = Palette::new(&file, light_vars);
+        let dark = Palette::new(&file, dark_vars);
 
         let (from, to, w) = blend_for_day(day, file.peaks);
-        let (a, b) = (file.season(from), file.season(to));
-
-        let light = a.light.lerp(&b.light, w);
-        let dark = a.dark.lerp(&b.dark, w);
-        let lb = a.lightbox.lerp(&b.lightbox, w);
+        let lc = light.blend(from, to, w);
+        let dc = dark.blend(from, to, w);
 
         let mut css = String::from(":root{");
-        scheme_vars(&mut css, &light, &file.alpha.light, &file.fixed.light);
-        decl(&mut css, "lb-1", lb.glow_1.triplet());
-        decl(&mut css, "lb-2", lb.glow_2.triplet());
-        decl(&mut css, "lb-base", lb.base.triplet());
+        css.push_str(&light.css(&lc));
         css.push_str("}@media (prefers-color-scheme:dark){:root{");
-        scheme_vars(&mut css, &dark, &file.alpha.dark, &file.fixed.dark);
+        css.push_str(&dark.css(&dc));
         css.push_str("}}");
+
+        let spec = format!(
+            "{{\"peaks\":{:?},\"favicon\":{},\"light\":{},\"dark\":{}}}",
+            file.peaks,
+            json_str(FAVICON),
+            light.json(),
+            dark.json(),
+        );
 
         Ok(Theme {
             css,
-            theme_color_light: light.bg.hex(),
-            theme_color_dark: dark.bg.hex(),
-            favicon: favicon(light.accent, dark.accent),
+            script: fill_script(template, &spec)?,
+            theme_color_light: light.get("bg", &lc)?.hex(),
+            theme_color_dark: dark.get("bg", &dc)?.hex(),
+            favicon: favicon(light.get("accent", &lc)?, dark.get("accent", &dc)?),
             summary: format!(
                 "{} -> {} at {:.0}% (day {day})",
                 NAMES[from],
@@ -364,5 +483,104 @@ mod tests {
             assert!((0.0..=1.0).contains(&w), "day {day}: w = {w}");
             assert_eq!(to, (from + 1) % 4);
         }
+    }
+
+    const TEMPLATE: &str = "const SPEC = __SPEC__;";
+
+    fn shipped(name: &str) -> String {
+        fs::read_to_string(name).unwrap_or_else(|e| panic!("{name}: {e}"))
+    }
+
+    #[test]
+    fn declarations_do_not_depend_on_the_season() {
+        let file: ThemeFile = toml::from_str(&shipped("theme.toml")).unwrap();
+        let light = Palette::new(&file, light_vars);
+        let dark = Palette::new(&file, dark_vars);
+        for p in [&light, &dark] {
+            assert!(p.seasons.iter().all(|s| s.len() == p.seasons[0].len()));
+            assert!(
+                p.decls.iter().filter(|d| matches!(d, Decl::Color(..))).count() == p.seasons[0].len()
+            );
+        }
+    }
+
+    #[test]
+    fn json_strings_cannot_end_the_script() {
+        let s = json_str("a\"b\\c</script><!--\n");
+        assert!(!s.contains('<') && !s.contains('\n'), "{s}");
+        assert_eq!(s, "\"a\\\"b\\\\c\\u003c/script>\\u003c!--\\u000a\"");
+    }
+
+    #[test]
+    fn template_needs_exactly_one_marker() {
+        let toml_text = shipped("theme.toml");
+        assert!(Theme::resolve(&toml_text, "no marker", 1).is_err());
+        assert!(Theme::resolve(&toml_text, "__SPEC__ __SPEC__", 1).is_err());
+        let ok = Theme::resolve(&toml_text, TEMPLATE, 1).unwrap();
+        assert!(ok.script.starts_with("const SPEC = {\"peaks\":[115, 206, 298, 385]"));
+    }
+
+    #[test]
+    fn browser_script_matches_rust_on_every_day() {
+        use std::process::Command;
+
+        const HARNESS: &str = r#"
+const fs = require('fs');
+const src = fs.readFileSync(process.argv[2], 'utf8');
+const RealDate = Date;
+let out = '';
+for (let day = 1; day <= 366; day++) {
+  const node = (o) => ({ ...o, getAttribute(k) { return this[k] ?? null; }, setAttribute(k, v) { this[k] = v; } });
+  const style = { textContent: 'stale' };
+  const metas = [
+    node({ media: '(prefers-color-scheme: light)', content: '' }),
+    node({ media: '(prefers-color-scheme: dark)', content: '' }),
+  ];
+  const icon = node({ href: '' });
+  const doc = {
+    getElementById: () => style,
+    querySelectorAll: () => metas,
+    querySelector: () => icon,
+  };
+  class FakeDate extends RealDate {
+    constructor(...a) { if (a.length) super(...a); else super(2024, 0, day); }
+  }
+  new Function('document', 'Date', src)(doc, FakeDate);
+  out += [style.textContent, metas[0].content, metas[1].content, icon.href].join('\n') + '\n\n';
+}
+process.stdout.write(out);
+"#;
+
+        let toml_text = shipped("theme.toml");
+        let template = shipped(SCRIPT_TEMPLATE);
+
+        let dir = std::env::temp_dir().join("hazel_theme_parity");
+        fs::create_dir_all(&dir).unwrap();
+        let script = dir.join("theme.js");
+        let harness = dir.join("harness.js");
+        let first = Theme::resolve(&toml_text, &template, 1).unwrap();
+        fs::write(&script, &first.script).unwrap();
+        fs::write(&harness, HARNESS).unwrap();
+
+        let out = match Command::new("node").arg(&harness).arg(&script).output() {
+            Ok(o) => o,
+            Err(e) if e.kind() == io::ErrorKind::NotFound => {
+                eprintln!("skipping: node is not installed");
+                return;
+            }
+            Err(e) => panic!("failed to run node: {e}"),
+        };
+        assert!(out.status.success(), "{}", String::from_utf8_lossy(&out.stderr));
+        let got = String::from_utf8(out.stdout).unwrap();
+
+        let mut want = String::new();
+        for day in 1..=366 {
+            let t = Theme::resolve(&toml_text, &template, day).unwrap();
+            let _ = write!(want, "{}\n{}\n{}\n{}\n\n", t.css, t.theme_color_light, t.theme_color_dark, t.favicon);
+        }
+        for (i, (g, w)) in got.split("\n\n").zip(want.split("\n\n")).enumerate() {
+            assert_eq!(g, w, "script and Rust disagree on day {}", i + 1);
+        }
+        assert_eq!(got.len(), want.len());
     }
 }

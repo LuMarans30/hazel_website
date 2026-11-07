@@ -45,7 +45,7 @@ pub fn page(
                 meta name="description" content=(content.tagline);
                 meta name="theme-color" content=(content.theme.theme_color_light) media="(prefers-color-scheme: light)";
                 meta name="theme-color" content=(content.theme.theme_color_dark) media="(prefers-color-scheme: dark)";
-                style { (PreEscaped(&content.theme.css)) }
+                style #theme { (PreEscaped(&content.theme.css)) }
                 title { (full_title) }
 
                 @if let Some(url) = &canonical {
@@ -68,6 +68,7 @@ pub fn page(
                 }
 
                 link rel="icon" href=(content.theme.favicon);
+                script { (PreEscaped(&content.theme.script)) }
                 @if current.is_empty() {
                     link rel="preload" href=(format!("{root}{HERO_FONT}"))
                         as="font" type="font/woff2" crossorigin;
