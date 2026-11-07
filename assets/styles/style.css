@@ -555,6 +555,9 @@ main:has(.about) { max-width: 120rem; }
   border: 0;
   background: transparent;
   color: #fff;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  touch-action: none;
 }
 
 #lightbox[open] {
@@ -589,9 +592,17 @@ main:has(.about) { max-width: 120rem; }
   box-shadow: 0 24px 70px rgb(0 0 0 / 0.55);
   opacity: 0;
   transition: opacity 0.25s ease;
+  touch-action: none;
+  cursor: zoom-in;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
 }
 
 #lightbox img.ready { opacity: 1; }
+#lightbox img.smooth { transition: opacity 0.25s ease, transform 0.2s ease-out; }
+#lightbox.zoomed img { cursor: grab; }
 
 #lightbox figcaption {
   display: flex;
@@ -602,6 +613,12 @@ main:has(.about) { max-width: 120rem; }
   text-align: center;
   font-size: 0.925rem;
   color: rgb(255 255 255 / 0.68);
+  transition: opacity 0.2s ease;
+}
+
+#lightbox.zoomed figcaption {
+  opacity: 0;
+  pointer-events: none;
 }
 
 #lightbox figcaption em {
