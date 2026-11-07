@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-image = { version = "0.25.10", default-features = false, features = ["jpeg", "webp"] }
+image = { version = "0.25.10", default-features = false, features = ["jpeg", "webp", "png"] }
 imagesize = "0.13"
 lightningcss = "1.0.0-alpha.71"
 maud = "0.27.0"
