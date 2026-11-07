@@ -6,8 +6,6 @@ use std::io;
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-const NAMES: [&str; 4] = ["spring", "summer", "autumn", "winter"];
-
 const SCRIPT_TEMPLATE: &str = "assets/scripts/theme.js";
 const SPEC_MARKER: &str = "__SPEC__";
 
@@ -186,7 +184,6 @@ pub struct Theme {
     pub theme_color_light: String,
     pub theme_color_dark: String,
     pub favicon: String,
-    pub summary: String,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -419,12 +416,6 @@ impl Theme {
             theme_color_light: light.get("bg", &lc)?.hex(),
             theme_color_dark: dark.get("bg", &dc)?.hex(),
             favicon: favicon(light.get("accent", &lc)?, dark.get("accent", &dc)?),
-            summary: format!(
-                "{} -> {} at {:.0}% (day {day})",
-                NAMES[from],
-                NAMES[to],
-                w * 100.0
-            ),
         })
     }
 }

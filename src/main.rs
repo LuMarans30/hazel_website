@@ -26,7 +26,6 @@ fn main() -> io::Result<()> {
     let theme = theme::Theme::load(THEME)?;
     let mut content = content::SiteContent::load(CONTENT)?;
     content.theme = theme;
-    println!("Theme: {}", content.theme.summary);
 
     if out.exists() {
         fs::remove_dir_all(out)?;
