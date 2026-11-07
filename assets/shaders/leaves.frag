@@ -18,6 +18,8 @@ const float TAU = 6.2831853;
 
 const vec3  SUN = normalize(vec3(-0.45, -0.55, 0.70));
 
+const float PRESENCE = 0.90;
+
 uint pcg(uint v) {
   uint s = v * 747796405u + 2891336453u;
   uint w = ((s >> ((s >> 28u) + 4u)) ^ s) * 277803737u;
@@ -49,11 +51,26 @@ float gustAt(float t) {
   return smoothstep(-6.0, 20.0, v);
 }
 
-float sdHalf(vec2 p, float b, float w) {
+float gain(float x, float k) {
+  float a = 0.5 * pow(2.0 * ((x < 0.5) ? x : 1.0 - x), k);
+  return (x < 0.5) ? a : 1.0 - a;
+}
+
+float sdHalf(vec2 p, float b, float w, out vec2 g) {
   float r = (b * b + w * w) / (2.0 * w);
   float d = r - w;
-  return ((p.y - b) * d > p.x * b) ? length(p - vec2(0.0, b))
-                                   : length(p - vec2(-d, 0.0)) - r;
+  vec2  v;
+  float l;
+  if ((p.y - b) * d > p.x * b) {
+    v = p - vec2(0.0, b);
+    l = length(v);
+    g = v / max(l, 1e-5);
+    return l;
+  }
+  v = p - vec2(-d, 0.0);
+  l = length(v);
+  g = v / max(l, 1e-5);
+  return l - r;
 }
 
 void main() {
@@ -99,6 +116,7 @@ void main() {
         vec4 r2 = rnd4(h);
         vec4 r3 = rnd4(h);
         vec4 r4 = rnd4(h);
+        vec4 r5 = rnd4(h);
 
         float sz = size * (0.8 + 0.4 * r4.w);
 
@@ -109,11 +127,14 @@ void main() {
                     + spin * t
                     + flap * sin(mix(2.0, 4.0, r2.w) * t + r3.x * TAU);
 
+        // Flutter
         float phi = mix(0.5, 1.2, r3.z) * t + r3.w * TAU;
-        float wc  = clamp(0.30 + 1.10 * cos(phi), -1.0, 1.0);
-        float ws  = max(abs(wc), 0.16);
-        float sps = sin(phi) < 0.0 ? -1.0 : 1.0;
-        float ls  = 0.90 + 0.10 * cos(0.8 * phi + 1.7);
+        float kk  = clamp(0.65 * (1.0 - cos(phi)) - 0.12, 0.0, 1.0);
+        float al  = mix(2.1, 2.7, r5.y) * gain(kk, 1.4);
+        al *= (sin(0.5 * phi) < 0.0) ? -1.0 : 1.0;
+        float wc = cos(al);
+        float sp = sin(al);
+        float ls = 0.90 + 0.10 * cos(0.8 * phi + 1.7);
 
         float cr = cos(theta), sr = sin(theta);
         vec2 q = vec2(cr * d.x + sr * d.y, -sr * d.x + cr * d.y) / sz;
@@ -121,63 +142,117 @@ void main() {
         float bend = (r1.z - 0.5) * 0.5 + 0.10 * sin(0.9 * t + r3.x * TAU) * (0.3 + gst);
         q.x -= bend * q.y * q.y;
         float lx = q.x;
-        q.x /= ws;
 
         // Geometry
         float W  = mix(0.15, 0.26, r1.w);
         float B1 = mix(0.52, 0.62, r4.z);
         float B2 = 0.98 - B1;
-        vec2  aq = abs(q);
-        float sdL = (q.y >= 0.0) ? sdHalf(aq, B1, W) : sdHalf(aq, B2, W);
-        vec2  sq  = vec2(q.x, q.y - clamp(q.y, -B2 - 0.14, -B2 + 0.03));
-        float sdS = length(sq) - 0.018;
-        float sd  = min(sdL, sdS);
-
-        float dpx = sd * sz * min(ws, ls);
+        float tf = mix(0.18, 0.55, r5.x);
         float aaw = 0.6 + blur;
-        float cov = 1.0 - smoothstep(-aaw, aaw, dpx);
-        if (cov < 0.004) continue;
 
-        float vein = 0.0;
+        // Palette
+        int   pal  = int(min(floor(r4.x * 4.0), 3.0));
+        int   pal2 = (pal + 1) & 3;
+        float tone = r4.y;
+        float dk0  = mix(0.70, 0.90, uDark);
+        float dk1  = mix(0.95, 1.30, uDark);
+        vec3  shA  = mix(uBot[pal],  uTop[pal],  0.10 + 0.25 * tone) * dk0;
+        vec3  liA  = mix(uBot[pal],  uTop[pal],  0.55 + 0.35 * tone) * dk1;
+        vec3  shB  = mix(uBot[pal2], uTop[pal2], 0.10 + 0.25 * tone) * dk0;
+        vec3  liB  = mix(uBot[pal2], uTop[pal2], 0.55 + 0.35 * tone) * dk1;
+        float grad = 0.40 * r5.z;
+
+        vec3  Ll = vec3(cr * SUN.x + sr * SUN.y, -sr * SUN.x + cr * SUN.y, SUN.z);
+        vec3  Hv = normalize(Ll + vec3(0.0, 0.0, 1.0));
         float veinVis = smoothstep(18.0, 30.0, sz) * (1.0 - smoothstep(1.2, 3.2, blur));
-        if (veinVis > 0.01) {
-          float depth = clamp(-sdL / 0.05, 0.0, 1.0);
-          float sv    = abs(fract(q.y * 7.0 - abs(lx) * 3.2) - 0.5);
-          float sideV = 1.0 - smoothstep(0.07, 0.17, sv);
-          float mw    = mix(0.014, 0.005, smoothstep(-B2, B1, q.y));
-          float rib   = 1.0 - smoothstep(mw, mw + 0.012, abs(lx));
-          rib *= smoothstep(-B2 - 0.02, -B2 + 0.05, q.y) *
-                 (1.0 - smoothstep(B1 * 0.62, B1 * 0.95, q.y));
-          vein = max(0.6 * sideV, rib) * depth;
+
+        vec2  sq = vec2(lx, (q.y - clamp(q.y, -B2 - 0.14, -B2 + 0.03)) * ls);
+        float cS = 1.0 - smoothstep(-aaw, aaw, (length(sq) - 0.018) * sz);
+
+        vec3  lc = vec3(0.0);
+        float la = 0.0;
+        float lm = 0.0;
+        if (cS > 0.004) {
+          lc = shA * 0.85 * cS;
+          la = cS;
+          lm = cS;
         }
 
-        // Lighting
-        float cfold = clamp(lx / 0.14, -1.0, 1.0) * 0.55;
-        vec3  nl = normalize(vec3(-cfold, 0.0, 1.0));
-        float sp = sps * sqrt(max(0.0, 1.0 - wc * wc));
-        vec3  n  = vec3(nl.x * wc + nl.z * sp, 0.0, -nl.x * sp + nl.z * wc);
-        if (n.z < 0.0) n = -n;
-        vec3  Ll = vec3(cr * SUN.x + sr * SUN.y, -sr * SUN.x + cr * SUN.y, SUN.z);
-        float lit  = clamp(0.55 + 0.55 * dot(n, Ll), 0.0, 1.0);
-        float spec = pow(clamp(dot(n, normalize(Ll + vec3(0.0, 0.0, 1.0))), 0.0, 1.0), 30.0);
+        for (int s = 0; s < 2; s++) {
+          float hs = ((s == 0) == (sp > 0.0)) ? 1.0 : -1.0;   // +1 right wing, -1 left
+          float c0 = wc + hs * sp * tf;
+          float ac = max(abs(c0), 0.02);
+          float sg = (c0 < 0.0) ? -1.0 : 1.0;
+          float u  = lx / (sg * ac);
 
-        // Colour from the seasonal palette
-        int  pal  = int(min(floor(r4.x * 4.0), 3.0));
-        vec3 Tc   = uTop[pal];
-        vec3 Bc   = uBot[pal];
-        float tone = r4.y;
-        vec3 shadowC = mix(Bc, Tc, 0.10 + 0.25 * tone) * mix(0.70, 0.90, uDark);
-        vec3 lightC  = mix(Bc, Tc, 0.55 + 0.35 * tone) * mix(0.95, 1.30, uDark);
+          vec2  gr = vec2(0.0);
+          vec2  aq = vec2(abs(u), abs(q.y));
+          float sdL = sdHalf(aq, (q.y >= 0.0) ? B1 : B2, W, gr);
 
-        float under = (wc < 0.0) ? 1.0 : 0.0;
-        vec3 col = mix(shadowC, lightC, lit);
-        col = mix(col, lightC, 0.35 * under);
-        vec3 veinC = mix(col * 0.62, mix(col, uAccent, 0.55), uDark);
-        col = mix(col, veinC, vein * veinVis * (0.40 + 0.25 * under));
-        col += uAccent * spec * mix(0.04, 0.20, uDark) * (1.0 - 0.5 * under);
-        col = clamp(col, 0.0, 1.0);
+          float bT  = (q.y >= 0.0) ? B1 : B2;
+          vec2  g2  = vec2(0.0);
+          // Coverage in screen space: an exact lens of half-width W*ac, tips at B*ls.
+          // Don't scale sdL by min(ac, ls) here, it streaks the tips when a wing goes edge-on.
+          float dpx = sdHalf(vec2(abs(lx), abs(q.y) * ls), bT * ls, W * ac, g2) * sz;
 
-        float a = min(cov * OPAC[L] * OPACITY * mix(1.0, 1.15, uDark), 1.0);
+          float cut = -hs * sg * lx * sz - ((s == 1) ? aaw : 0.0);
+          float cov = 1.0 - smoothstep(-aaw, aaw, max(dpx, cut));
+          if (cov < 0.004) continue;
+
+          // Interior distance
+          float dep   = max(-sdL, 0.0);
+          float edge  = 1.0 - smoothstep(0.0, 0.08, dep);
+          float crown = smoothstep(0.0, 0.16, abs(u));
+          vec2  gv    = gr * vec2((u < 0.0) ? -1.0 : 1.0, (q.y < 0.0) ? -1.0 : 1.0);
+          vec3  nl    = normalize(vec3(-hs * tf * crown + 0.8 * edge * gv.x,
+                                       0.8 * edge * gv.y, 1.0));
+          vec3  nr    = vec3(nl.x * wc + nl.z * sp, nl.y, -nl.x * sp + nl.z * wc);
+          float fs    = nr.z * inversesqrt(nr.z * nr.z + 0.02);
+          vec3  n     = nr * fs;
+          float under = 0.5 - 0.5 * fs;
+
+          float lit  = clamp(0.55 + 0.55 * dot(n, Ll), 0.0, 1.0);
+          float spec = pow(clamp(dot(n, Hv), 0.0, 1.0), 30.0);
+
+          float gm = grad * (1.0 - smoothstep(-B2, B1 * 0.7, q.y));
+          vec3  sC = mix(shA, shB, gm);
+          vec3  lC = mix(liA, liB, gm);
+          vec3  col = mix(sC, lC, lit);
+          col = mix(col, lC, 0.35 * under);
+
+          if (veinVis > 0.01) {
+            float band  = smoothstep(2.5, 6.0, sz * ac / 3.2);
+            float depth = clamp(dep / 0.05, 0.0, 1.0);
+            float sv    = abs(fract(q.y * 7.0 - abs(u) * 3.2) - 0.5);
+            float sideV = 1.0 - smoothstep(0.07, 0.17, sv);
+            float mw    = mix(0.014, 0.005, smoothstep(-B2, B1, q.y));
+            float rib   = 1.0 - smoothstep(mw, mw + 0.012, abs(lx));
+            rib *= smoothstep(-B2 - 0.02, -B2 + 0.05, q.y) *
+                   (1.0 - smoothstep(B1 * 0.62, B1 * 0.95, q.y));
+            float vein  = max(0.6 * sideV * band, rib) * depth;
+            vec3  veinC = mix(col * 0.62, mix(col, uAccent, 0.55), uDark);
+            col = mix(col, veinC, vein * veinVis * (0.40 + 0.25 * under));
+          }
+
+          // Light through the blade (cheap subsurface) when it faces away from the sun
+          float tr = clamp(-dot(n, Ll), 0.0, 1.0);
+          col += mix(lC, uAccent, 0.5) * (0.12 * tr * tr);
+
+          // Fresnel rim
+          float fre = pow(1.0 - min(abs(nr.z), 1.0), 2.5);
+          col += uAccent * fre * mix(0.03, 0.09, uDark);
+
+          col += uAccent * spec * mix(0.04, 0.20, uDark) * (1.0 - 0.5 * under);
+          col = clamp(col, 0.0, 1.0);
+
+          lc = col * cov + lc * (1.0 - cov);
+          la = cov + la * (1.0 - cov);
+          lm = max(lm, cov);
+        }
+        if (lm < 0.004) continue;
+
+        vec3  col = lc / max(la, 1e-4);
+        float a = min(lm * PRESENCE * OPAC[L] * OPACITY * mix(1.0, 1.15, uDark), 1.0);
         acc.rgb = col * a + acc.rgb * (1.0 - a);
         acc.a   = a + acc.a * (1.0 - a);
       }
