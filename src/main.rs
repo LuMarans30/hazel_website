@@ -62,10 +62,10 @@ fn main() -> io::Result<()> {
 
 fn targets() -> Targets {
     Browsers {
-        chrome: Some(105 << 16),
-        edge: Some(105 << 16),
-        firefox: Some(104 << 16),
-        safari: Some(16 << 16),
+        chrome: Some(114 << 16),
+        edge: Some(114 << 16),
+        firefox: Some(121 << 16),
+        safari: Some(16 << 16 | 4 << 8),
         ..Browsers::default()
     }
     .into()
