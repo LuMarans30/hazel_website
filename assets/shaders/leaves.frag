@@ -18,8 +18,6 @@ const float TAU = 6.2831853;
 
 const vec3  SUN = normalize(vec3(-0.45, -0.55, 0.70));
 
-const float PRESENCE = 0.90;
-
 uint pcg(uint v) {
   uint s = v * 747796405u + 2891336453u;
   uint w = ((s >> ((s >> 28u) + 4u)) ^ s) * 277803737u;
@@ -252,7 +250,7 @@ void main() {
         if (lm < 0.004) continue;
 
         vec3  col = lc / max(la, 1e-4);
-        float a = min(lm * PRESENCE * OPAC[L] * OPACITY * mix(1.0, 1.15, uDark), 1.0);
+        float a = min(lm * OPAC[L] * OPACITY * mix(1.0, 1.15, uDark), 1.0);
         acc.rgb = col * a + acc.rgb * (1.0 - a);
         acc.a   = a + acc.a * (1.0 - a);
       }

@@ -13,7 +13,7 @@ use moxcms::ColorProfile;
 use moxcms::Layout;
 use moxcms::TransformOptions;
 
-pub const SOURCE_DIR: &str = "assets/images";
+const SOURCE_DIR: &str = "assets/images";
 const CACHE_ROOT: &str = ".cache/images";
 const WIDTHS: [u32; 4] = [480, 800, 1200, 1800];
 const QUALITY: f32 = 82.0;
@@ -24,7 +24,7 @@ pub const SOCIAL_SIZE: (u32, u32) = (1200, 630);
 const SOCIAL_PAD: u32 = 40;
 const SOCIAL_QUALITY: u8 = 85;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default)]
 pub struct Image {
     pub stem: String,
     pub widths: Vec<u32>,
@@ -75,7 +75,7 @@ fn to_srgb(rgb: &RgbImage, icc: &[u8]) -> Result<RgbImage, CmsError> {
     Ok(RgbImage::from_raw(w, h, out).expect("buffer length unchanged"))
 }
 
-pub fn variant_name(stem: &str, width: u32) -> String {
+fn variant_name(stem: &str, width: u32) -> String {
     format!("{stem}-{width}.webp")
 }
 

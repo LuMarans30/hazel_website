@@ -1,7 +1,7 @@
-use maud::{DOCTYPE, PreEscaped, Markup, html};
+use maud::{DOCTYPE, Markup, html};
 
 use crate::content::{Painting, SiteContent};
-use crate::layout::{page, root_of, url};
+use crate::layout::{ROUTE_CONTACT, ROUTE_PAINTINGS, ROUTE_ABOUT, page, url};
 
 const ICON_PREV: &str = "M15 5l-7 7 7 7";
 const ICON_NEXT: &str = "M9 5l7 7-7 7";
@@ -68,17 +68,12 @@ fn painting_item(p: &Painting, root: &str, place: Place, index: usize) -> Markup
 }
 
 pub fn home(content: &SiteContent) -> Markup {
-    let root = root_of("");
-
     let mut featured: Vec<&Painting> = content.paintings.iter().filter(|p| p.is_featured).collect();
     if featured.is_empty() {
         featured = content.paintings.iter().take(HOME_COUNT).collect();
     }
 
-    page(
-        None,
-        "",
-        content,
+    page(None, "", content, |root| {
         html! {
             section.intro {
                 h1.artist-name { (content.artist_name) }
@@ -90,7 +85,7 @@ pub fn home(content: &SiteContent) -> Markup {
                 }
             }
             div.more {
-                a href=(url(&root, "paintings/")) { "See all " (content.paintings.len()) " paintings" }
+                a href=(url(&root, ROUTE_PAINTINGS)) { "See all " (content.paintings.len()) " paintings" }
                 div.carousel-nav hidden {
                     button.carousel-btn type="button" data-carousel="prev"
                         aria-label="Scroll to earlier paintings" { (icon(ICON_PREV)) }
@@ -99,40 +94,31 @@ pub fn home(content: &SiteContent) -> Markup {
                 }
             }
             (lightbox())
-        },
-    )
+        }
+    })
 }
 
 pub fn gallery(content: &SiteContent) -> Markup {
-    let root = root_of("paintings/");
-
-    page(
-        Some("Paintings"),
-        "paintings/",
-        content,
+    page(Some("Paintings"), ROUTE_PAINTINGS, content, |root| {
         html! {
             h1 { "Paintings" }
             ul.gallery {
                 @for (i, p) in content.paintings.iter().enumerate() {
-                    (painting_item(p, &root, Place::Grid, i))
+                    (painting_item(p, root, Place::Grid, i))
                 }
             }
             (lightbox())
-        },
-    )
+        }
+    })
 }
 
 pub fn about(content: &SiteContent) -> Markup {
-    let root = root_of("about/");
     let alt = content
         .portrait_alt
         .clone()
         .unwrap_or_else(|| format!("Portrait of {}", content.artist_name));
 
-    page(
-        Some("About"),
-        "about/",
-        content,
+    page(Some("About"), ROUTE_ABOUT, content, |root| {
         html! {
             h1 { "About" }
             div.about {
@@ -154,20 +140,17 @@ pub fn about(content: &SiteContent) -> Markup {
                         p.lead[i == 0] { (paragraph) }
                     }
                     div.actions {
-                        a href=(url(&root, "contact/")) { "Get in touch" }
-                        a.ghost href=(url(&root, "paintings/")) { "View the paintings" }
+                        a href=(url(&root, ROUTE_CONTACT)) { "Get in touch" }
+                        a.ghost href=(url(&root, ROUTE_PAINTINGS)) { "View the paintings" }
                     }
                 }
             }
-        },
-    )
+        }
+    })
 }
 
 pub fn contact(content: &SiteContent) -> Markup {
-    page(
-        Some("Contact"),
-        "contact/",
-        content,
+    page(Some("Contact"), ROUTE_CONTACT, content, |_| {
         html! {
             h1 { "Contact" }
             div.prose {
@@ -177,8 +160,8 @@ pub fn contact(content: &SiteContent) -> Markup {
                     button.copy type="button" data-copy=(content.email) { "Copy address" }
                 }
             }
-        },
-    )
+        }
+    })
 }
 
 pub fn dashboard() -> Markup {
@@ -190,9 +173,6 @@ pub fn dashboard() -> Markup {
                 meta name="robots" content="noindex, nofollow";
                 meta http-equiv="refresh" content=(format!("0; url={CMS_URL}"));
                 title { "Redirecting to Pages CMS..." }
-                script {
-                    (PreEscaped(format!("window.location.replace('{CMS_URL}');")))
-                }
             }
             body {
                 p {

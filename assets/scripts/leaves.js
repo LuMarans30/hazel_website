@@ -173,7 +173,6 @@
       canvas.remove();
       return;
     }
-    root.classList.add('leaves-gl');
 
     new ResizeObserver(resize).observe(canvas);
     darkScheme.addEventListener('change', () => {
@@ -191,16 +190,13 @@
     canvas.addEventListener('webglcontextlost', (e) => {
       e.preventDefault();
       stop();
-      root.classList.remove('leaves-gl');
     });
     canvas.addEventListener('webglcontextrestored', () => {
       if (setup()) {
-        root.classList.add('leaves-gl');
         start();
       }
     });
 
-    draw();
     start();
   }
 

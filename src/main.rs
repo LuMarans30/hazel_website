@@ -31,9 +31,7 @@ fn main() -> io::Result<()> {
         fs::remove_dir_all(out)?;
     }
 
-    if static_dir.exists() {
-        copy_dir(static_dir, out)?;
-    }
+    copy_dir(static_dir, out)?;
 
     content.publish_images(&out.join("images"))?;
 

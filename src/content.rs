@@ -32,7 +32,7 @@ pub struct Painting {
     pub size: Option<String>,
     #[serde(default)]
     pub alt: Option<String>,
-    #[serde(default, alias = "featured")]
+    #[serde(default)]
     pub is_featured: bool,
     #[serde(skip)]
     pub image: Image,

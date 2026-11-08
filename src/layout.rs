@@ -1,12 +1,16 @@
 use maud::{DOCTYPE, Markup, PreEscaped, html};
 
+pub const ROUTE_PAINTINGS: &str = "paintings/";
+pub const ROUTE_ABOUT: &str = "about/";
+pub const ROUTE_CONTACT: &str = "contact/";
+
 const NAV: [(&str, &str); 3] = [
-    ("paintings/", "Paintings"),
-    ("about/", "About"),
-    ("contact/", "Contact"),
+    (ROUTE_PAINTINGS, "Paintings"),
+    (ROUTE_ABOUT, "About"),
+    (ROUTE_CONTACT, "Contact"),
 ];
 
-pub fn root_of(page_path: &str) -> String {
+fn root_of(page_path: &str) -> String {
     "../".repeat(page_path.split('/').filter(|s| !s.is_empty()).count())
 }
 
@@ -23,9 +27,10 @@ pub fn page(
     title: Option<&str>,
     current: &str,
     content: &crate::content::SiteContent,
-    body: Markup,
+    body: impl FnOnce(&str) -> Markup,
 ) -> Markup {
     let root = root_of(current);
+    let body_markup = body(&root);
     const HERO_FONT: &str = "fonts/FleurDeLeah-Regular.woff2";
 
     let full_title = match title {
@@ -94,7 +99,7 @@ pub fn page(
                         }
                     }
                 }
-                main #main { (body) }
+                main #main { (body_markup) }
                 footer.site-footer {
                     "© " (content.artist_name)
                 }

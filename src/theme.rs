@@ -17,7 +17,7 @@ fn err(msg: impl Display) -> io::Error {
     io::Error::other(msg.to_string())
 }
 
-#[derive(Debug, Clone, Copy, Default, Deserialize)]
+#[derive(Debug, Clone, Copy, Deserialize)]
 #[serde(try_from = "String")]
 struct Rgb([f64; 3]);
 
@@ -60,14 +60,14 @@ impl Rgb {
     }
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Leaves {
     top: [Rgb; 4],
     bot: [Rgb; 4],
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Scheme {
     bg: Rgb,
@@ -84,7 +84,7 @@ struct Scheme {
     leaves: Leaves,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Lightbox {
     glow_1: Rgb,
@@ -92,7 +92,7 @@ struct Lightbox {
     base: Rgb,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Season {
     light: Scheme,
@@ -100,7 +100,7 @@ struct Season {
     lightbox: Lightbox,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct Alpha {
     blobs: [f64; 4],
@@ -108,7 +108,7 @@ struct Alpha {
     placeholder: f64,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct PerScheme<T> {
     light: T,
@@ -177,7 +177,7 @@ fn blend_for_day(day: i64, peaks: [u32; 4]) -> (usize, usize, f64) {
     (i, (i + 1) % 4, u * u * (3.0 - 2.0 * u))
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Default)]
 pub struct Theme {
     pub css: String,
     pub script: String,
