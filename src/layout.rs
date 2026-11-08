@@ -86,7 +86,7 @@ pub fn page(
                     script
                         data-goatcounter=(format!("https://{code}.goatcounter.com/count"))
                         async
-                        src="//gc.zgo.at/count.js" {}
+                        src="https://gc.zgo.at/count.js" {}
                 }
             }
             body {
