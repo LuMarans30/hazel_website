@@ -88,6 +88,8 @@ content:
           - name: year
             label: Year
             type: number
+            options:
+              step: 1
           - name: medium
             label: Medium
             type: string
