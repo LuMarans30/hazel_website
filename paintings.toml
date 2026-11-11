@@ -1,107 +1,37 @@
-artist_name = "Hazel Addinall"
-site_url = "https://lumarans30.github.io/hazel_website"
-tagline = "Painter based in Fermo."
+
+artist_name = 'Hazel Addinall'
+site_url = 'https://lumarans30.github.io/hazel_website'
+tagline = 'Painter based in Fermo.'
 bio = [
-    "Write the first paragraph of the biography here.",
-    "Write the second paragraph here: training, themes, materials, exhibitions.",
+	'Write the first paragraph of the biography here.',
+	'Write the second paragraph here: training, themes, materials, exhibitions.',
 ]
-email = "hazeladdinall09@gmail.com"
-portrait = "hazel-portrait.jpg"
-portrait_alt = "Hazel Addinall in the nature"
-goatcounter_code="lumarans30"
-social_image = "paintings_23.jpg"
-
-[[paintings]]
-file = "paintings_01.jpg"
-title = "Untitled 1"
-
-[[paintings]]
-file = "paintings_02.jpg"
-title = "Untitled 2"
-
-[[paintings]]
-file = "paintings_03.jpg"
-title = "Untitled 3"
-
-[[paintings]]
-file = "paintings_04.jpg"
-title = "Untitled 4"
-
-[[paintings]]
-file = "paintings_05.jpg"
-title = "Untitled 5"
-
-[[paintings]]
-file = "paintings_06.jpg"
-title = "Untitled 6"
-
-[[paintings]]
-file = "paintings_07.jpg"
-title = "Untitled 7"
-
-[[paintings]]
-file = "paintings_08.jpg"
-title = "Untitled 8"
-
-[[paintings]]
-file = "paintings_09.jpg"
-title = "Untitled 9"
-
-[[paintings]]
-file = "paintings_10.jpg"
-title = "Untitled 10"
-
-[[paintings]]
-file = "paintings_11.jpg"
-title = "Untitled 11"
-
-[[paintings]]
-file = "paintings_12.jpg"
-title = "Untitled 12"
-
-[[paintings]]
-file = "paintings_13.jpg"
-title = "Untitled 13"
-
-[[paintings]]
-file = "paintings_14.jpg"
-title = "Untitled 14"
-is_featured = true
-
-[[paintings]]
-file = "paintings_15.jpg"
-title = "Untitled 15"
-
-[[paintings]]
-file = "paintings_16.jpg"
-title = "Untitled 16"
-
-[[paintings]]
-file = "paintings_17.jpg"
-title = "Untitled 17"
-
-[[paintings]]
-file = "paintings_18.jpg"
-title = "Untitled 18"
-is_featured = true
-
-[[paintings]]
-file = "paintings_19.jpg"
-title = "Untitled 19"
-
-[[paintings]]
-file = "paintings_20.jpg"
-title = "Untitled 20"
-
-[[paintings]]
-file = "paintings_21.jpg"
-title = "Untitled 21"
-is_featured = true
-
-[[paintings]]
-file = "paintings_22.jpg"
-title = "Untitled 22"
-
-[[paintings]]
-file = "paintings_23.jpg"
-title = "Untitled 23"
+email = 'hazeladdinall09@gmail.com'
+portrait = '/hazel-portrait.jpg'
+portrait_alt = 'Hazel Addinall in the nature'
+goatcounter_code = 'lumarans30'
+social_image = '/paintings_23.jpg'
+paintings = [
+	{ file = '/paintings_01.jpg', title = 'Popplers in the mist', is_featured = false, year = 2010.0, medium = 'Textured oil painting' },
+	{ file = '/paintings_02.jpg', title = 'Sardinian sunset', is_featured = false, medium = 'Oil on canvas' },
+	{ file = '/paintings_03.jpg', title = 'Sunset over the summer countryside', is_featured = false, medium = 'Watercolor collage' },
+	{ file = '/paintings_04.jpg', title = 'Autumnal poppler', is_featured = false, medium = 'Textured oil on canvas' },
+	{ file = '/paintings_05.jpg', title = 'Cesenatico at sunset', is_featured = false, medium = 'Oil on canvas' },
+	{ file = '/paintings_06.jpg', title = 'Where the light settles', is_featured = false, medium = 'Textured oil on canvas' },
+	{ file = '/paintings_07.jpg', title = 'Autumnal still life', is_featured = false, year = 2009.0, medium = 'Oil on canvas' },
+	{ file = '/paintings_08.jpg', title = 'Moonrise through the arch ', is_featured = false, medium = 'Oil on wood' },
+	{ file = '/paintings_09.jpg', title = 'The young bare trees', is_featured = false, medium = 'Oil on canvas' },
+	{ file = '/paintings_11.jpg', title = 'Winter doorway', is_featured = false, medium = 'Oil on canvas' },
+	{ file = '/paintings_12.jpg', title = 'Golden leaves', is_featured = false, medium = 'Oil on canvas' },
+	{ file = '/paintings_13.jpg', title = 'Narcissi in a bronze jug', is_featured = false, medium = 'Textured oil on canvas' },
+	{ file = '/paintings_14.jpg', title = 'Morning ploughed field', is_featured = true, medium = 'Oil on canvas' },
+	{ file = '/paintings_15.jpg', title = 'The poppler twins', is_featured = false, medium = 'Oil on wood' },
+	{ file = '/paintings_16.jpg', title = 'The rough sea', is_featured = false, medium = 'Oil on canvas' },
+	{ file = '/paintings_17.jpg', title = 'Toadflax in a jar', is_featured = false, year = 2008.0, medium = 'Oil on canvas' },
+	{ file = '/paintings_18.jpg', title = 'The dappled wood', is_featured = true, medium = 'Oil on canvas' },
+	{ file = '/paintings_19.jpg', title = 'Hidden villa through the trees', is_featured = false, medium = 'Oil on canvas' },
+	{ file = '/paintings_20.jpg', title = 'Winter bonfire', is_featured = true, medium = 'Oil on canvas' },
+	{ file = '/paintings_21.jpg', title = 'Still life with pumpkin and a jug', is_featured = true, medium = 'Oil on canvas' },
+	{ file = '/paintings_22.jpg', title = 'A venetian canal', is_featured = true, medium = 'Watercolor & Ink' },
+	{ file = '/paintings_23.jpg', title = 'The empty chair', is_featured = true, medium = 'Watercolor' },
+]
