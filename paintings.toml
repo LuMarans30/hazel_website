@@ -12,13 +12,13 @@ portrait_alt = 'Hazel Addinall in the nature'
 goatcounter_code = 'lumarans30'
 social_image = '/paintings_23.jpg'
 paintings = [
-	{ file = '/paintings_01.jpg', title = 'Popplers in the mist', is_featured = false, year = 2010.0, medium = 'Textured oil painting' },
+	{ file = '/paintings_01.jpg', title = 'Popplers in the mist', is_featured = false, year = 2010, medium = 'Textured oil painting' },
 	{ file = '/paintings_02.jpg', title = 'Sardinian sunset', is_featured = false, medium = 'Oil on canvas' },
 	{ file = '/paintings_03.jpg', title = 'Sunset over the summer countryside', is_featured = false, medium = 'Watercolor collage' },
 	{ file = '/paintings_04.jpg', title = 'Autumnal poppler', is_featured = false, medium = 'Textured oil on canvas' },
 	{ file = '/paintings_05.jpg', title = 'Cesenatico at sunset', is_featured = false, medium = 'Oil on canvas' },
 	{ file = '/paintings_06.jpg', title = 'Where the light settles', is_featured = false, medium = 'Textured oil on canvas' },
-	{ file = '/paintings_07.jpg', title = 'Autumnal still life', is_featured = false, year = 2009.0, medium = 'Oil on canvas' },
+	{ file = '/paintings_07.jpg', title = 'Autumnal still life', is_featured = false, year = 2009, medium = 'Oil on canvas' },
 	{ file = '/paintings_08.jpg', title = 'Moonrise through the arch ', is_featured = false, medium = 'Oil on wood' },
 	{ file = '/paintings_09.jpg', title = 'The young bare trees', is_featured = false, medium = 'Oil on canvas' },
 	{ file = '/paintings_11.jpg', title = 'Winter doorway', is_featured = false, medium = 'Oil on canvas' },
@@ -27,7 +27,7 @@ paintings = [
 	{ file = '/paintings_14.jpg', title = 'Morning ploughed field', is_featured = true, medium = 'Oil on canvas' },
 	{ file = '/paintings_15.jpg', title = 'The poppler twins', is_featured = false, medium = 'Oil on wood' },
 	{ file = '/paintings_16.jpg', title = 'The rough sea', is_featured = false, medium = 'Oil on canvas' },
-	{ file = '/paintings_17.jpg', title = 'Toadflax in a jar', is_featured = false, year = 2008.0, medium = 'Oil on canvas' },
+	{ file = '/paintings_17.jpg', title = 'Toadflax in a jar', is_featured = false, year = 2008, medium = 'Oil on canvas' },
 	{ file = '/paintings_18.jpg', title = 'The dappled wood', is_featured = true, medium = 'Oil on canvas' },
 	{ file = '/paintings_19.jpg', title = 'Hidden villa through the trees', is_featured = false, medium = 'Oil on canvas' },
 	{ file = '/paintings_20.jpg', title = 'Winter bonfire', is_featured = true, medium = 'Oil on canvas' },

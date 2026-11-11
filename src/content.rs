@@ -1,5 +1,6 @@
 use rayon::prelude::*;
 use serde::Deserialize;
+use serde::Deserializer;
 use std::collections::HashSet;
 use std::fs;
 use std::io;
@@ -24,7 +25,7 @@ const RESERVED_IDS: [&str; 6] = [
 pub struct Painting {
     pub file: PathBuf,
     pub title: String,
-    #[serde(default)]
+    #[serde(default, deserialize_with = "lenient_year")]
     pub year: Option<u16>,
     #[serde(default)]
     pub medium: Option<String>,
@@ -38,6 +39,29 @@ pub struct Painting {
     pub image: Image,
     #[serde(skip)]
     pub slug: String,
+}
+
+fn lenient_year<'de, D>(d: D) -> Result<Option<u16>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum Num {
+        Int(i64),
+        Float(f64),
+    }
+
+    match Option::<Num>::deserialize(d)? {
+        None => Ok(None),
+        Some(Num::Int(n)) => u16::try_from(n)
+            .map(Some)
+            .map_err(|_| serde::de::Error::custom(format!("year out of range: {n}"))),
+        Some(Num::Float(f)) if f.fract() == 0.0 && (0.0..=65535.0).contains(&f) => {
+            Ok(Some(f as u16))
+        }
+        Some(Num::Float(f)) => Err(serde::de::Error::custom(format!("invalid year: {f}"))),
+    }
 }
 
 impl Painting {
