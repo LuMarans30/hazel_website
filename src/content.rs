@@ -130,6 +130,16 @@ impl SiteContent {
     }
 
     fn prepare(&mut self) -> io::Result<()> {
+        for p in [&mut self.portrait, &mut self.social_image]
+            .into_iter()
+            .flatten()
+        {
+            *p = strip_root(p);
+        }
+        for p in &mut self.paintings {
+            p.file = strip_root(&p.file);
+        }
+
         if let Some(file) = &self.social_image {
             let known = self.portrait.as_ref() == Some(file)
                 || self.paintings.iter().any(|p| &p.file == file);
@@ -220,6 +230,11 @@ impl SiteContent {
             None => Ok(()),
         }
     }
+}
+
+/// Pages CMS writes image paths as "/name.jpg" but the builder wants "name.jpg"
+fn strip_root(p: &Path) -> PathBuf {
+    p.strip_prefix("/").unwrap_or(p).to_path_buf()
 }
 
 fn slugify(s: &str) -> String {
